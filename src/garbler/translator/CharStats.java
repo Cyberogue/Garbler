@@ -36,6 +36,9 @@ public class CharStats {
     // THE CHARACTER BEING REPRESENTED
     char definition;
 
+    // A MAP OF THE NUMBER OF TIMES A CHARACTER OCCURS AFTER THIS LETTER
+    TreeMap<Character, OccurrenceList> numHits;
+
     /**
      * Basic constructor
      *
@@ -43,6 +46,8 @@ public class CharStats {
      */
     public CharStats(char entry) {
         definition = entry;
+
+        numHits = new TreeMap();
     }
 
     /**
@@ -54,9 +59,6 @@ public class CharStats {
 
     @Override
     public String toString() {
-        String s = definition + " [";
-
-        s += "]";
-        return s;
+        return definition + numHits.toString();
     }
 }

@@ -1,0 +1,356 @@
+/*
+ * The MIT License
+ *
+ * Copyright 2014 Rogue <Alice Q>.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package garbler.translator;
+
+/**
+ * List which tracks the number of occurrences of an event at different times
+ *
+ * @author Rogue <Alice Q>
+ */
+public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAccess, java.lang.Comparable<OccurrenceList> {
+
+    // AND THE INTERNAL MAP
+    private int[] map;
+
+    // TOTAL AMOUNT OF ENTRIES SINCE IT'S FREQUENTLY CALCULATED
+    private int total = 0;
+
+    // CONSTRUCTORS
+    /**
+     * Basic constructor
+     */
+    public OccurrenceList() {
+        this(1);
+    }
+
+    /**
+     * Basic constructor
+     *
+     * @param size The initial size of the structure
+     */
+    public OccurrenceList(int size) {
+        map = new int[size];
+    }
+
+    /**
+     * Method for constructing an OccurrenceList out of a predetermined array
+     *
+     * @param list An array of integer values
+     */
+    public OccurrenceList(int[] list) {
+        map = list.clone();
+    }
+
+    // DATA STRUCTURE
+    // - increment (2)
+    // - reset
+    // - resize
+    // - get
+    // - getTotal
+    // - size
+    /**
+     * Increments the count by one at a specified 0-indexed index, resizing the
+     * structure as needed
+     *
+     * @param index The index
+     * @return The number of times the event has happened
+     */
+    public int increment(int index) {
+        total++;
+        return increment(index, 1);
+    }
+
+    /**
+     * Increments the count at a specified 0-indexed index, resizing the
+     * structure as needed
+     *
+     * @param index The index
+     * @param amount The amount to increment by
+     * @return The number of times the event has happened
+     */
+    public int increment(int index, int amount) {
+        if (index < 0) {
+            throw new ArrayIndexOutOfBoundsException();
+        } else if (index >= map.length) {
+            resize(index + 1);
+        }
+        total += amount;
+        return (map[index] += amount);
+    }
+
+    /**
+     * Resets the count at a specified 0-indexed index
+     *
+     * @param index The index to reset
+     */
+    public void reset(int index) {
+        if (index < 0 || index >= map.length) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        total -= map[index];
+        map[index] = 0;
+    }
+
+    /**
+     * Resizes the internal data structure to the new size limit
+     *
+     * @param newSize The new size to resize the structure to
+     */
+    public void resize(int newSize) {
+        if (newSize == map.length) {
+            return;
+        }
+
+        int[] temp = new int[newSize];
+        System.arraycopy(map, 0, temp, 0, Math.min(map.length, newSize));
+        map = temp;
+
+    }
+
+    /**
+     * Returns the count at a specified 0-indexed index
+     *
+     * @param index The index
+     * @return The number of times the event has happened
+     */
+    public int get(int index) {
+        if (index < 0 || index >= map.length) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        return map[index];
+    }
+
+    /**
+     * @return The total number of event entries
+     */
+    public int getTotal() {
+        return total;
+    }
+
+    /**
+     * @return The size of the structure
+     */
+    public int size() {
+        return map.length;
+    }
+
+    // VALUE RETRIEVAL
+    // - getFirstNonzero
+    // - getLastNonzero
+    // - getIndexOfMax
+    // - getIndexOfMin
+    // - getIndexOfNonzeroMin
+    // - getLastIndexOfMax
+    // - getLastIndexOfMin
+    // - getLastIndexOfNonzeroMin
+    /**
+     * @return The index of the lowest non-zero entry
+     */
+    public int getFirstNonzeroEntry() {
+        for (int i = 0; i < map.length; i++) {
+            if (map[i] != 0) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * @return The index of the highest non-zero entry
+     */
+    public int getLastNonzeroEntry() {
+        for (int i = map.length - 1; i >= 0; i--) {
+            if (map[i] != 0) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * @return The first index of the highest value in the list
+     */
+    public int getIndexOfMax() {
+        int index = 0;
+
+        for (int i = 1; i < map.length; i++) {
+            if (map[i] > map[index]) {
+                index = i;
+            }
+        }
+
+        return index;
+    }
+
+    /**
+     * @return The first index of the lowest value in the list
+     */
+    public int getIndexOfMin() {
+        int index = 0;
+
+        for (int i = 1; i < map.length; i++) {
+            if (map[i] == 0) {
+                return i;
+            } else if (map[i] < map[index]) {
+                index = i;
+            }
+        }
+
+        return index;
+    }
+
+    /**
+     * @return The first index of the lowest non-zero value in the list
+     */
+    public int getIndexOfNonzeroMin() {
+        int index = 0;
+
+        for (int i = 1; i < map.length; i++) {
+            if (map[i] == 1) {
+                return i;
+            } else if (map[i] < map[index] && map[i] != 0) {
+                index = i;
+            }
+        }
+
+        return index;
+    }
+
+    /**
+     * @return The last index of the highest value in the list
+     */
+    public int getLastIndexOfMax() {
+        int index = 0;
+
+        for (int i = map.length - 1; i >= 0; i--) {
+            if (map[i] > map[index]) {
+                index = i;
+            }
+        }
+
+        return index;
+    }
+
+    /**
+     * @return The last index of the lowest value in the list
+     */
+    public int getLastIndexOfMin() {
+        int index = 0;
+
+        for (int i = map.length - 1; i >= 0; i--) {
+            if (map[i] == 0) {
+                return i;
+            } else if (map[i] < map[index]) {
+                index = i;
+            }
+        }
+
+        return index;
+    }
+
+    /**
+     * @return The last index of the lowest non-zero value in the list
+     */
+    public int getLastIndexOfNonzeroMin() {
+        int index = 0;
+
+        for (int i = map.length - 1; i >= 0; i--) {
+            if (map[i] == 1) {
+                return i;
+            } else if (map[i] < map[index] && map[i] != 0) {
+                index = i;
+            }
+        }
+
+        return index;
+    }
+
+    // STATISTICS
+    // - getAverage 
+    // - getVariance
+    // - getProbabilityMass
+    /**
+     * @return The average value in the set, defined as E(x)
+     */
+    public float getAverage() {
+        return (float) total / map.length;
+    }
+
+    /**
+     * @return The variance of the set
+     */
+    public float getVariance() {
+        float sum_sq = 0;
+        float sum_avg = 0;
+
+        // FIND BOTH E(X) and E(X^2) IN ONE LOOP
+        for (int i : map) {
+            sum_avg += i;
+            sum_sq += i * i;
+        }
+
+        // AVERAGE OF THE SQUARES
+        float avg_of_sqr = sum_sq / map.length;
+
+        // SQUARE OF THE AVERAGE
+        float avg = sum_avg / map.length;
+        float sqr_of_avg = avg * avg;
+
+        // E(X^2) - E(X)^2
+        return avg_of_sqr - sqr_of_avg;
+    }
+
+    public float getProbabilityMass(int index) {
+        if (index < 0 || index >= map.length) {
+            return 0.0f;
+        }
+        return map[index] / total;
+    }
+
+    // OVERWRITTEN METHODS
+    // - toString
+    // - compareTo
+    // - clone
+    @Override
+    public String toString() {
+        String s = "[" + map[0];
+
+        int index = 0;
+        while (++index < map.length) {
+            s += "," + map[index];
+        }
+
+        return s += ">";
+    }
+
+    @Override
+    public int compareTo(OccurrenceList list) {
+        return Integer.compare(map.length, list.size());
+    }
+
+    @Override
+    public OccurrenceList clone() throws CloneNotSupportedException {
+        return new OccurrenceList(map);
+    }
+}

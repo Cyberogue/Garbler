@@ -36,6 +36,23 @@ public class CharLib {
     private TreeMap<Character, CharStats> lib;
 
     public static void main(String[] args) {
+        System.out.println("Start run");
+
         CharLib lib = new CharLib();
+
+        CharStats stats = new CharStats('a');
+        System.out.println(stats.toString());
+
+        int[] temp = {1, 1, 1, 5};
+        OccurrenceList o = new OccurrenceList(temp);
+
+        System.out.println(o.toString());
+        System.out.println(o.getFirstNonzeroEntry());
+        System.out.println(o.getLastNonzeroEntry());
+        System.out.println(o.getTotalCount());
+        System.out.println(o.getAverage());
+        System.out.println(o.getVariance());
+
+        System.out.println("End run");
     }
 }
