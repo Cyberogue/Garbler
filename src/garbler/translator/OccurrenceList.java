@@ -60,6 +60,9 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      */
     public OccurrenceList(int[] list) {
         map = list.clone();
+        for (int i : map) {
+            total += i;
+        }
     }
 
     // DATA STRUCTURE
@@ -70,7 +73,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     // - getTotal
     // - size
     /**
-     * Increments the count by one at a specified 0-indexed index, resizing the
+     * Increments the count by one at a specified 0-indexed value, resizing the
      * structure as needed
      *
      * @param index The index
@@ -82,7 +85,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     }
 
     /**
-     * Increments the count at a specified 0-indexed index, resizing the
+     * Increments the count at a specified 0-indexed value, resizing the
      * structure as needed
      *
      * @param index The index
@@ -100,7 +103,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     }
 
     /**
-     * Resets the count at a specified 0-indexed index
+     * Resets the count at a specified 0-indexed value
      *
      * @param index The index to reset
      */
@@ -129,14 +132,29 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     }
 
     /**
-     * Returns the count at a specified 0-indexed index
+     * Returns the count at a specified 0-indexed value
      *
-     * @param index The index
+     * @param index The index of the value to retrieve
      * @return The number of times the event has happened
      */
     public int get(int index) {
         if (index < 0 || index >= map.length) {
             throw new ArrayIndexOutOfBoundsException();
+        }
+        return map[index];
+    }
+
+    /**
+     * Similar to get(int), this method returns the count at a 0-indexed value,
+     * returning 0 if the value is outside the internal data range
+     *
+     * @param index The index of the value to retrieve
+     * @return The number of times the event has happened. This returns 0 for
+     * any index value outside the valid range.
+     */
+    public int getCount(int index) {
+        if (index < 0 || index >= map.length) {
+            return 0;
         }
         return map[index];
     }
