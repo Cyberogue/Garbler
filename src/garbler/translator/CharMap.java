@@ -31,7 +31,7 @@ import java.util.Map.Entry;
  * @author Rogue <Alice Q>
  * @param <E> The type of Object contained within the TreeMap
  */
-public class CharMap<E> extends java.util.TreeMap<Character, E> {
+public class CharMap<E> extends java.util.TreeMap<Character, E> implements Collapsible<Entry<Character, E>> {
 
     // WHETHER OR NOT TO IGNORE CASES
     private boolean caseSensitive;
@@ -70,6 +70,17 @@ public class CharMap<E> extends java.util.TreeMap<Character, E> {
     }
 
     /**
+     * Method for retrieving the case sensitivity of the structure. That is,
+     * That is, 'a' yields the same results as 'A' when false.
+     *
+     * @return true if case is taken into consideration when accessing data,
+     * false if case if ignored.
+     */
+    public boolean isCaseSensitive() {
+        return this.caseSensitive;
+    }
+
+    /**
      * Gets a key for the map associated with the input character, taking case
      * sensitivity into account
      *
@@ -91,11 +102,12 @@ public class CharMap<E> extends java.util.TreeMap<Character, E> {
     /**
      * This method is used to collapse the internal data structure by
      * reassigning uppercase keys to their lowercase variants where possible.
-     * Please note that when two data members already exist the onCollapse(E, E)
-     * method is invoked. Please use this to specify the procedure to use in
+     * Please note that when two data members already exist the merge() method
+     * is invoked on the two. Please use this to specify the procedure to use in
      * case of a collision, otherwise the uppercase data member will simply be
      * destroyed.
      */
+    @Override
     public final void collapse() {
         // FIRST FIND THE UPPERCASE MEMBERS
         java.util.ArrayList<Entry> upperSet = new java.util.ArrayList(size() / 2);  // ASSUME HALF THE ENTRIES ARE UPPERCASE INITIALLY
@@ -120,7 +132,7 @@ public class CharMap<E> extends java.util.TreeMap<Character, E> {
                 super.put(cLow, vHigh);
             } else if (vLow != vHigh) {
                 // ASK THE USER WHAT TO DO
-                onMergeConflict(vLow, vHigh, cLow);
+                merge(new java.util.AbstractMap.SimpleEntry(cLow, vLow), entry);
             }
             // IF THE SAME OBJECT IS HELD IN BOTH, DO NOTHING
 
@@ -140,11 +152,11 @@ public class CharMap<E> extends java.util.TreeMap<Character, E> {
      * For example, use this method to invoke calls in order to merge data
      * between the two as needed otherwise the uppercase member will be lost.
      *
-     * @param lowerValue The Object data held at the lower key
-     * @param upperValue The Object data held at the upper key
-     * @param key The key merge location
+     * @param oldValue The Object data held at the lower key
+     * @param newValue The Object data held at the upper key
      */
-    public void onMergeConflict(E lowerValue, E upperValue, Character key) {
+    @Override
+    public void merge(Entry<Character, E> oldValue, Entry<Character, E> newValue) {
 
     }
 
