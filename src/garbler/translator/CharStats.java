@@ -33,11 +33,14 @@ import java.util.TreeMap;
  */
 public class CharStats {
 
+    // DEFAULT SIZE TO MAKE NEW LISTS
+    public static final int DEFAULT_LIST_SIZE = 5;
+
     // THE CHARACTER BEING REPRESENTED
     char definition;
 
     // A MAP OF THE NUMBER OF TIMES A CHARACTER OCCURS AFTER THIS LETTER
-    TreeMap<Character, OccurrenceList> numHits;
+    TreeMap<Character, OccurrenceList> occurrences;
 
     /**
      * Basic constructor
@@ -47,18 +50,83 @@ public class CharStats {
     public CharStats(char entry) {
         definition = entry;
 
-        numHits = new TreeMap();
+        occurrences = new TreeMap();
     }
 
     /**
-     * @return The character the entry is for
+     * @return the character being represented by the object
      */
-    public char getDefinitionCharacter() {
+    public char getCharacter() {
         return definition;
+    }
+
+    /**
+     * Adds a new field to the internal data structures
+     *
+     * @param key The character to add
+     * @return true if a new field was added, or false if the field already
+     * exists
+     */
+    public boolean addField(char key) {
+        OccurrenceList list = occurrences.get(key);
+
+        if (list == null) {
+            occurrences.put(key, new OccurrenceList(DEFAULT_LIST_SIZE));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Gets a list of occurrences between the represented character and the key
+     * character in the same word
+     *
+     * @param key The character to get the key for
+     * @return The OccurrenceList corresponding to a character key
+     */
+    public OccurrenceList getOccurrenceList(char key) {
+        return occurrences.get(key);
+    }
+
+    /**
+     * Adds a single occurrence between the represented character and the key
+     * character at a specified index
+     *
+     * @param key The character to add to
+     * @param index The index to add to within the character
+     * @throws java.util.NoSuchElementException when the specified key doesn't
+     * exist
+     */
+    public void addOccurrence(char key, int index) {
+        addOccurrence(key, index, 1);
+    }
+
+    /**
+     * Adds a number of occurrences between the represented character and the
+     * key character at a specified index. If there is no such data structure at
+     * the specified key, it is created and initialized to zero.
+     *
+     * @param key The character to add to
+     * @param index The index to add to within the character
+     * @param quantity The amount to add
+     * @throws java.util.NoSuchElementException when the specified key doesn't
+     * exist
+     */
+    public void addOccurrence(char key, int index, int quantity) {
+        OccurrenceList list = occurrences.get(key);
+
+        if (list == null) {
+            list = new OccurrenceList(DEFAULT_LIST_SIZE);
+            occurrences.put(key, list);
+        }
+
+        list.increment(index, quantity);
+
     }
 
     @Override
     public String toString() {
-        return definition + numHits.toString();
+        return definition + occurrences.toString();
     }
 }
