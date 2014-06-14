@@ -236,4 +236,8 @@ public class CharStats extends TreeMap<Character, OccurrenceList> implements jav
         return Character.compare(this.definition, stats.definition);
     }
 
+    public OccurrenceList get(Character key) {
+        return super.get(getKey(key));
+    }
+
 }

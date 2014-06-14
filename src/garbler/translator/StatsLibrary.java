@@ -92,6 +92,10 @@ public class StatsLibrary extends TreeMap<Character, CharStats> {
             stats.ignoreCases(active);
         }
     }
+    
+    public CharStats get(Character key) {
+        return super.get(getKey(key));
+    }
 
     /**
      * Collapses the internal data structure by making all the keys lowercase,
@@ -116,7 +120,7 @@ public class StatsLibrary extends TreeMap<Character, CharStats> {
             CharStats entryUpper = e.getValue();
             Character keyLower = Character.toLowerCase(keyUpper);
             CharStats entryLower = get(keyLower);
-
+            
             if (entryLower == null) {
                 put(keyLower, entryUpper);
             } else {
@@ -135,71 +139,96 @@ public class StatsLibrary extends TreeMap<Character, CharStats> {
             stats.collapseCases();
         }
     }
-
+    
     public static void main(String[] args) {
         java.util.Random rand = new java.util.Random();
 
-        StatsLibrary lib = new StatsLibrary();
-        lib.ignoreCases(false);
-
-        System.out.println("--------- TEST#" + 1 + " ---------");
-
-        for (char c = 'a'; c <= 'd'; c++) {
-            lib.addField(c);
-        }
-
-        for (char c = 'A'; c <= 'F'; c++) {
-            lib.addField(c);
-        }
-
-        for (char c = 'A'; c <= 'F'; c++) {
-            lib.addField(c);
-        }
-        lib.get('b').add('x', 6);
-        lib.get('B').add('x', 1);
-        lib.get('B').add('X', 2);
-        lib.get('B').add('y', 3);
-        System.out.println(lib);
-
-        lib.collapseCases();
-        System.out.println(lib);
-
-        for (int y = 1; y <= 5; y++) {
-            System.out.println("--------- TEST#" + y + " ---------");
-            lib.clear();
-            lib.ignoreCases(false);
-            char c = 'a';
-            for (int i = 0; i <= 2 + rand.nextInt(4); i++) {
-                if (Character.isLowerCase(c) && rand.nextFloat() > .3f) {
-                    c = Character.toUpperCase(c);
-                } else {
-                    c = (char) ('a' + rand.nextInt(26));
-                }
-                lib.addField(c);
-                CharStats cstat = lib.get(c);
-
-                for (int x = 0; x <= 2 + rand.nextInt(4); x++) {
-                    if (rand.nextFloat() > .5f) {
-                        cstat.add((char) ('a' + rand.nextInt(26)), rand.nextInt(6), 1 + rand.nextInt(5));
-                    } else {
-                        cstat.add((char) ('A' + rand.nextInt(26)), rand.nextInt(6), 2);
-                    }
-                }
+        CharMap<OccurrenceList> map = new CharMap<OccurrenceList>() {
+            @Override
+            public void onMergeConflict(OccurrenceList lowerValue, OccurrenceList upperValue, Character key) {
+                lowerValue.addAll(upperValue);
             }
-            System.out.println(lib);
-            System.out.print("Alphabet: ");
-            for (Character abc : lib.getAlphabet()) {
-                System.out.print(abc);
-            }
-            System.out.println();
+        };
+        
+        map.setCaseSensitive(true);
+        System.out.println(map);
+        
+        map.put('a', new OccurrenceList());
+        map.put('b', new OccurrenceList());
+        map.put('c', new OccurrenceList());
+        map.put('A', new OccurrenceList());
+        map.put('B', new OccurrenceList());
+        map.put('C', new OccurrenceList());
+        System.out.println(map);
+        
+        map.get('a').increment(2);
+        map.get('b').increment(3);
+        map.get('A').increment(4);
+        System.out.println(map);
+        
+        map.collapse();
+        System.out.println(map);
 
-            lib.collapseCases();
-            System.out.println(lib);
-            System.out.print("Alphabet: ");
-            for (Character abc : lib.getAlphabet()) {
-                System.out.print(abc);
-            }
-            System.out.println();
-        }
+        /*
+         StatsLibrary lib = new StatsLibrary();
+
+         System.out.println("--------- TEST#" + 1 + " ---------");
+
+         for (char c = 'a'; c <= 'd'; c++) {
+         lib.addField(c);
+         }
+
+         for (char c = 'A'; c <= 'F'; c++) {
+         lib.addField(c);
+         }
+
+         for (char c = 'A'; c <= 'F'; c++) {
+         lib.addField(c);
+         }
+         lib.get('b').add('x', 6);
+         lib.get('B').add('x', 1);
+         lib.get('B').add('X', 2);
+         lib.get('B').add('y', 3);
+         System.out.println(lib);
+
+         lib.collapseCases();
+         System.out.println(lib);
+
+         for (int y = 1; y <= 5; y++) {
+         System.out.println("--------- TEST#" + y + " ---------");
+         lib.clear();
+         char c = 'a';
+         for (int i = 0; i <= 2 + rand.nextInt(4); i++) {
+         if (Character.isLowerCase(c) && rand.nextFloat() > .3f) {
+         c = Character.toUpperCase(c);
+         } else {
+         c = (char) ('a' + rand.nextInt(26));
+         }
+         lib.addField(c);
+         CharStats cstat = lib.get(c);
+
+         for (int x = 0; x <= 2 + rand.nextInt(4); x++) {
+         if (rand.nextFloat() > .5f) {
+         cstat.add((char) ('a' + rand.nextInt(26)), rand.nextInt(6), 1 + rand.nextInt(5));
+         } else {
+         cstat.add((char) ('A' + rand.nextInt(26)), rand.nextInt(6), 2);
+         }
+         }
+         }
+         System.out.println(lib);
+         System.out.print("Alphabet: ");
+         for (Character abc : lib.getAlphabet()) {
+         System.out.print(abc);
+         }
+         System.out.println();
+
+         lib.collapseCases();
+         System.out.println(lib);
+         System.out.print("Alphabet: ");
+         for (Character abc : lib.getAlphabet()) {
+         System.out.print(abc);
+         }
+         System.out.println();
+         }*/
     }
 }
