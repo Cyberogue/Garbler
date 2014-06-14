@@ -31,16 +31,13 @@ import java.util.TreeMap;
  *
  * @author Rogue <Alice Q>
  */
-public class CharStats {
+public class CharStats extends TreeMap<Character, OccurrenceList> implements java.lang.Comparable<CharStats> {
 
     // DEFAULT SIZE TO MAKE NEW LISTS
     public static final int DEFAULT_LIST_SIZE = 5;
 
     // THE CHARACTER BEING REPRESENTED
     char definition;
-
-    // A MAP OF THE NUMBER OF TIMES A CHARACTER OCCURS AFTER THIS LETTER
-    TreeMap<Character, OccurrenceList> occurrences;
 
     /**
      * Basic constructor
@@ -49,8 +46,6 @@ public class CharStats {
      */
     public CharStats(char entry) {
         definition = entry;
-
-        occurrences = new TreeMap();
     }
 
     /**
@@ -68,10 +63,10 @@ public class CharStats {
      * exists
      */
     public boolean addField(char key) {
-        OccurrenceList list = occurrences.get(key);
+        OccurrenceList list = super.get(key);
 
         if (list == null) {
-            occurrences.put(key, new OccurrenceList(DEFAULT_LIST_SIZE));
+            super.put(key, new OccurrenceList(DEFAULT_LIST_SIZE));
             return true;
         } else {
             return false;
@@ -79,14 +74,14 @@ public class CharStats {
     }
 
     /**
-     * Gets a list of occurrences between the represented character and the key
+     * Gets a list of super between the represented character and the key
      * character in the same word
      *
      * @param key The character to get the key for
      * @return The OccurrenceList corresponding to a character key
      */
     public OccurrenceList getOccurrenceList(char key) {
-        return occurrences.get(key);
+        return super.get(key);
     }
 
     /**
@@ -103,9 +98,9 @@ public class CharStats {
     }
 
     /**
-     * Adds a number of occurrences between the represented character and the
-     * key character at a specified index. If there is no such data structure at
-     * the specified key, it is created and initialized to zero.
+     * Adds a number of super between the represented character and the key
+     * character at a specified index. If there is no such data structure at the
+     * specified key, it is created and initialized to zero.
      *
      * @param key The character to add to
      * @param index The index to add to within the character
@@ -114,19 +109,19 @@ public class CharStats {
      * exist
      */
     public void addOccurrence(char key, int index, int quantity) {
-        OccurrenceList list = occurrences.get(key);
+        OccurrenceList list = super.get(key);
 
         if (list == null) {
             list = new OccurrenceList(DEFAULT_LIST_SIZE);
-            occurrences.put(key, list);
+            super.put(key, list);
         }
 
         list.increment(index, quantity);
-
     }
 
     @Override
-    public String toString() {
-        return definition + occurrences.toString();
+    public int compareTo(CharStats stats) {
+        return Character.compare(this.definition, stats.definition);
     }
+
 }

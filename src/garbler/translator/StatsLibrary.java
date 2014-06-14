@@ -30,32 +30,34 @@ import java.util.TreeMap;
  *
  * @author Rogue <Alice Q>
  */
-public class StatsLibrary {
-
-    // MAP OF ALL THE STORED CHARACTERS IN THE SYSTEM
-    private TreeMap<Character, CharStats> lib;
+public class StatsLibrary extends TreeMap<Character, CharStats> {
+    /**
+     * Adds a new field to the internal data structures
+     *
+     * @param key The character to add
+     * @return true if a new field was added, or false if the field already
+     * exists
+     */
+    public boolean addField(char key) {
+        if (super.containsKey(key)) {
+            return false;
+        } else {
+            super.put(key, new CharStats(key));
+            return true;
+        }
+    }
 
     public static void main(String[] args) {
         java.util.Random rand = new java.util.Random();
         StatsLibrary lib = new StatsLibrary();
         CharStats cs = new CharStats('b');
 
-        System.out.println("Start run");
-
-        System.out.println(cs);
-
-        cs.addField('b');
-        System.out.println(cs);
-
-        cs.addOccurrence('b', 3);
-        System.out.println(cs);
-
-        cs.addOccurrence('b', 3, 6);
-        System.out.println(cs);
-
-        cs.addOccurrence('c', 5);
-        System.out.println(cs);
-
+        for (char c = 'a'; c <= 'f'; c++){
+            lib.addField(c);
+        }
+        
+        System.out.println(lib);
+        
         System.out.println("End run");
     }
 }
