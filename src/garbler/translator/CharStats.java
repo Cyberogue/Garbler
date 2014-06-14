@@ -199,32 +199,33 @@ public class CharStats extends TreeMap<Character, OccurrenceList> implements jav
      * there is no way to undo this.
      */
     public void collapseCases() {
-        // LIST OF CRAP TO REMOVE
+        // LIST OF CRAP TO REMOVE AND REPLACE
         ArrayList<Character> trashbin = new ArrayList(size());
+        ArrayList<Entry<Character, OccurrenceList>> uppercase = new ArrayList(size());
 
-        // NOTE: SINCE OCCURRENCELISTS DON'T HAVE CONCURRENCY ISSUES, THIS CAN BE DONE MUCH FASTER THAN STATSLIBRARY
-        // ITERATE THROUGH IT ALL
-        for (Entry<Character, OccurrenceList> e : super.entrySet()) {
+        // ITERATE THROUGH IT ALL AND FIND THE UPPERCASE ENTRIES
+        for (Entry<Character, OccurrenceList> e : entrySet()) {
             if (Character.isUpperCase(e.getKey())) {
-                // GET RELEVANT FIELDS
-                Character keyUpper = e.getKey();
-                OccurrenceList entryUpper = e.getValue();
-
-                Character keyLower = Character.toLowerCase(keyUpper);
-                OccurrenceList entryLower = get(keyLower);
-
-                //  MERGE
-                if (entryLower == null) {
-                    put(keyLower, entryUpper);
-                } else {
-                    entryLower.addAll(entryUpper);
-                }
-
-                // AND MARK THE KEY FOR DELETION
-                trashbin.add(keyUpper);
+                uppercase.add(e);
             }
         }
-        // NOW DELETE THE DEPRECATED KEYS
+
+        // NOW SWAP THE NECESSARY KEYS
+        for (Entry<Character, OccurrenceList> e : uppercase) {
+            Character keyUpper = e.getKey();
+            OccurrenceList entryUpper = e.getValue();
+            Character keyLower = Character.toLowerCase(keyUpper);
+            OccurrenceList entryLower = get(keyLower);
+
+            if (entryLower == null) {
+                put(keyLower, entryUpper);
+            } else {
+                entryLower.addAll(entryUpper);
+            }
+            trashbin.add(keyUpper);
+        }
+
+        // DELETE THE UPPERCASE KEYS
         for (Character key : trashbin) {
             remove(key);
         }

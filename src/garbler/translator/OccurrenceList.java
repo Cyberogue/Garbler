@@ -214,7 +214,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
             map = temp;
         }
         // AND ADD ALL THE VALUES
-        for (int i = 0; i < map.length; i++) {
+        for (int i = 0; i < values.length; i++) {
             map[i] += values[i];
         }
     }

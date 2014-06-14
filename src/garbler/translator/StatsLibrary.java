@@ -134,7 +134,6 @@ public class StatsLibrary extends TreeMap<Character, CharStats> {
         for (CharStats stats : values()) {
             stats.collapseCases();
         }
-
     }
 
     public static void main(String[] args) {
@@ -142,28 +141,65 @@ public class StatsLibrary extends TreeMap<Character, CharStats> {
 
         StatsLibrary lib = new StatsLibrary();
         lib.ignoreCases(false);
-        System.out.println(lib);
+
+        System.out.println("--------- TEST#" + 1 + " ---------");
 
         for (char c = 'a'; c <= 'd'; c++) {
             lib.addField(c);
         }
-        System.out.println(lib);
 
         for (char c = 'A'; c <= 'F'; c++) {
             lib.addField(c);
         }
-        System.out.println(lib);
 
         for (char c = 'A'; c <= 'F'; c++) {
             lib.addField(c);
         }
-        lib.get('b').add('x', 1);
+        lib.get('b').add('x', 6);
         lib.get('B').add('x', 1);
-        lib.get('B').add('X', 1);
-        lib.get('B').add('y', 1);
+        lib.get('B').add('X', 2);
+        lib.get('B').add('y', 3);
         System.out.println(lib);
 
         lib.collapseCases();
         System.out.println(lib);
+
+        for (int y = 1; y <= 5; y++) {
+            System.out.println("--------- TEST#" + y + " ---------");
+            lib.clear();
+            lib.ignoreCases(false);
+            char c = 'a';
+            for (int i = 0; i <= 2 + rand.nextInt(4); i++) {
+                if (Character.isLowerCase(c) && rand.nextFloat() > .3f) {
+                    c = Character.toUpperCase(c);
+                } else {
+                    c = (char) ('a' + rand.nextInt(26));
+                }
+                lib.addField(c);
+                CharStats cstat = lib.get(c);
+
+                for (int x = 0; x <= 2 + rand.nextInt(4); x++) {
+                    if (rand.nextFloat() > .5f) {
+                        cstat.add((char) ('a' + rand.nextInt(26)), rand.nextInt(6), 1 + rand.nextInt(5));
+                    } else {
+                        cstat.add((char) ('A' + rand.nextInt(26)), rand.nextInt(6), 2);
+                    }
+                }
+            }
+            System.out.println(lib);
+            System.out.print("Alphabet: ");
+            for (Character abc : lib.getAlphabet()) {
+                System.out.print(abc);
+            }
+            System.out.println();
+
+            lib.collapseCases();
+            System.out.println(lib);
+            System.out.print("Alphabet: ");
+            for (Character abc : lib.getAlphabet()) {
+                System.out.print(abc);
+            }
+            System.out.println();
+        }
     }
 }
