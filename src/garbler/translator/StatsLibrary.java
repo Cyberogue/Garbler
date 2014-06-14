@@ -32,10 +32,10 @@ import java.util.Map.Entry;
  *
  * @author Rogue <Alice Q>
  */
-public class StatsLibrary extends CharMap<CharStats>{
+public class StatsLibrary extends CharMap<CharStats> {
 
     public void merge(CharStats lowerEntry, CharStats upperEntry) {
-
+        
     }
 
     public static void main(String[] args) {
@@ -43,29 +43,37 @@ public class StatsLibrary extends CharMap<CharStats>{
 
         CharMap<OccurrenceList> map = new CharMap<OccurrenceList>() {
             @Override
-            public void merge(Entry<Character, OccurrenceList> oldValue, Entry<Character, OccurrenceList> newValue) {
-                oldValue.getValue().addAll(newValue.getValue());
+            public void merge(OccurrenceList oldValue, OccurrenceList newValue) {
+                oldValue.addAll(newValue);
             }
         };
 
-        map.setCaseSensitive(true);
-        System.out.println(map);
+        for (int test = 1; test <= 10; test++) {
+            System.out.println("TEST #" + test + " ------------------------------------------------------------------------------------------");
+            map.clear();
+            map.setCaseSensitive(rand.nextBoolean());
+            
+            System.out.println("\tCase sensitive: " + map.isCaseSensitive());
 
-        map.put('a', new OccurrenceList());
-        map.put('b', new OccurrenceList());
-        map.put('c', new OccurrenceList());
-        map.put('A', new OccurrenceList());
-        map.put('B', new OccurrenceList());
-        map.put('C', new OccurrenceList());
-        System.out.println(map);
+            int size = 3 + rand.nextInt(5);
+            for (int i = 0; i < size; i++) {
+                char c = (char) (rand.nextInt(26) + 'a');
+                map.put(c, new OccurrenceList());
 
-        map.get('a').increment(2);
-        map.get('b').increment(3);
-        map.get('A').increment(4);
-        map.get('A').increment(2);
-        System.out.println(map);
+                if (rand.nextFloat() > .5f) {
+                    map.put(Character.toUpperCase(c), new OccurrenceList());
+                }
+            }
 
-        map.collapse();
-        System.out.println(map);
+            for (OccurrenceList list : map.values()) {
+                for (int i = 0; i < 3; i++) {
+                    list.increment(rand.nextInt(7), 1 + rand.nextInt(3));
+                }
+            }
+            System.out.println("\t" + map.getAlphabet()  + map);
+
+            map.collapse();
+            System.out.println("\t" + map.getAlphabet() + map);
+        }
     }
 }

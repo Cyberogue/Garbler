@@ -62,13 +62,20 @@ public class CharStats {
      */
     public CharStats(char c) {
         name = c;
+
         startPosition = new OccurrenceList();
         endPosition = new OccurrenceList();
-        correlations = new CharMap();
+
+        correlations = new CharMap<OccurrenceList>() {
+            @Override
+            public void merge(OccurrenceList oldValue, OccurrenceList newValue) {
+                oldValue.addAll(newValue);
+            }
+        };
     }
-    
-    public void collapse(){
-        
+
+    public void collapse() {
+
     }
 
 }

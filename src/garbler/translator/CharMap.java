@@ -31,7 +31,7 @@ import java.util.Map.Entry;
  * @author Rogue <Alice Q>
  * @param <E> The type of Object contained within the TreeMap
  */
-public class CharMap<E> extends java.util.TreeMap<Character, E> implements Collapsible<Entry<Character, E>> {
+public abstract class CharMap<E> extends java.util.TreeMap<Character, E> implements Collapsible<E> {
 
     // WHETHER OR NOT TO IGNORE CASES
     private boolean caseSensitive;
@@ -132,32 +132,13 @@ public class CharMap<E> extends java.util.TreeMap<Character, E> implements Colla
                 super.put(cLow, vHigh);
             } else if (vLow != vHigh) {
                 // ASK THE USER WHAT TO DO
-                merge(new java.util.AbstractMap.SimpleEntry(cLow, vLow), entry);
+                merge(vLow, vHigh);
             }
             // IF THE SAME OBJECT IS HELD IN BOTH, DO NOTHING
 
             // REMOVE THE UPPERCASE ENTRY
             super.remove(cHigh);
         }
-    }
-
-    /**
-     * Override this method in order to control what happens when a counter is
-     * encountered between a lower-case and an upper-case key when collapsing
-     * the internal data structure, or leave it blank in order to simply delete
-     * the uppercase entry. That is, when collapse() is invoked and non-null
-     * data exists under both the lower-case and upper-case variants of a
-     * specific key.
-     *
-     * For example, use this method to invoke calls in order to merge data
-     * between the two as needed otherwise the uppercase member will be lost.
-     *
-     * @param oldValue The Object data held at the lower key
-     * @param newValue The Object data held at the upper key
-     */
-    @Override
-    public void merge(Entry<Character, E> oldValue, Entry<Character, E> newValue) {
-
     }
 
     // WRAPPER METHODS
@@ -262,5 +243,4 @@ public class CharMap<E> extends java.util.TreeMap<Character, E> implements Colla
     public java.util.SortedMap tailMap(Character fromKey) {
         return super.tailMap(getKey(fromKey));
     }
-
 }
