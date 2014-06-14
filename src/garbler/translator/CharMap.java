@@ -24,6 +24,7 @@
 package garbler.translator;
 
 import java.util.Map.Entry;
+import java.util.ArrayList;
 
 /**
  * Class which serves as a character-keyed extension of TreeMap
@@ -31,7 +32,7 @@ import java.util.Map.Entry;
  * @author Rogue <Alice Q>
  * @param <E> The type of Object contained within the TreeMap
  */
-public abstract class CharMap<E> extends java.util.TreeMap<Character, E> implements Collapsible<E> {
+public abstract class CharMap<E> extends java.util.TreeMap<Character, E> implements Compactable<CharMap<E>, E> {
 
     // WHETHER OR NOT TO IGNORE CASES
     private boolean caseSensitive;
@@ -55,9 +56,10 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
 
     // ADDITIONAL METHODS 
     // - setCaseSensitive
+    // - isCaseSensitive
     // - getKey
     // - getAlphabet
-    // - collapse
+    // - compact
     /**
      * Method for making a CharMap case sensitive or insensitive. Please note
      * that this does nothing to the internal data structure
@@ -74,7 +76,7 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
      * That is, 'a' yields the same results as 'A' when false.
      *
      * @return true if case is taken into consideration when accessing data,
-     * false if case if ignored.
+     * false if case is ignored.
      */
     public boolean isCaseSensitive() {
         return this.caseSensitive;
@@ -100,17 +102,16 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
     }
 
     /**
-     * This method is used to collapse the internal data structure by
-     * reassigning uppercase keys to their lowercase variants where possible.
-     * Please note that when two data members already exist the merge() method
-     * is invoked on the two. Please use this to specify the procedure to use in
-     * case of a collision, otherwise the uppercase data member will simply be
-     * destroyed.
+     * This method is used to compact the internal data structure by reassigning
+     * uppercase keys to their lowercase variants where possible. Please note
+     * that when two data members already exist the merge() method is invoked on
+     * the two. Please use this to specify the procedure to use in case of a
+     * collision, otherwise the uppercase data member will simply be destroyed.
      */
     @Override
-    public final void collapse() {
+    public final void compact() {
         // FIRST FIND THE UPPERCASE MEMBERS
-        java.util.ArrayList<Entry> upperSet = new java.util.ArrayList(size() / 2);  // ASSUME HALF THE ENTRIES ARE UPPERCASE INITIALLY
+        ArrayList<Entry> upperSet = new ArrayList(size() / 2);  // ASSUME HALF THE ENTRIES ARE UPPERCASE INITIALLY
 
         for (Entry<Character, E> entry : entrySet()) {
             if (Character.isUpperCase(entry.getKey())) {
@@ -138,6 +139,20 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
 
             // REMOVE THE UPPERCASE ENTRY
             super.remove(cHigh);
+        }
+    }
+
+    @Override
+    public void addAll(CharMap<E> obj) {
+        for (Entry<Character, E> entry : obj.entrySet()) {
+            E existing = get(entry.getKey());
+            if (existing == null) {
+                // WE'RE GOOD, JUST ADD THE NEW ONE
+                super.put(entry.getKey(), entry.getValue());
+            } else if (existing != entry.getValue()) {  // ONLY NEED TO MERGE IF THEY'RE NOT THE SAME THING
+                // UHOH, CONFLICT. ASK THE USER WHAT TO DO
+                merge(existing, entry.getValue());
+            }
         }
     }
 

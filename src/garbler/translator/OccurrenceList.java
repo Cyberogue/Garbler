@@ -73,6 +73,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     // DATA STRUCTURE
     // - increment (2)
     // - reset
+    // - clear
     // - resize
     // - get
     // - getTotal
@@ -87,7 +88,6 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      * @return The number of times the event has happened
      */
     public int increment(int index) {
-        total++;
         return increment(index, 1);
     }
 
@@ -120,6 +120,15 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
         }
         total -= map[index];
         map[index] = 0;
+    }
+
+    /**
+     * Resets all the counts back to zero
+     */
+    public void clear() {
+        for (int i = 0; i < map.length; i++) {
+            map[i] = 0;
+        }
     }
 
     /**

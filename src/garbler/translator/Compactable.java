@@ -24,19 +24,34 @@
 package garbler.translator;
 
 /**
- * Interface declaring that an object's internal data structure can be collapsed
- * at will
+ * Interface for creating container objects that allow for data compaction with
+ * either themselves or other objects. The compact() method is used in order to
+ * shrink the internally held data, whereas the addAll method is used to add the
+ * data from a second object as a way of merging the two. The merge method is to
+ * be used in case of merge conflicts between the two, and may be left blank if
+ * not required or overwritten if desired.
  *
  * @author Rogue <Alice Q>
- * @param <K> The type of object called when merging
+ * @param <E> The type of object held internally
+ * @param <M> The type of object this can be merged with
  */
-public interface Collapsible<K> {
+public interface Compactable<M, E> {
 
     /**
-     * Method used in order to collapse the internal data structure by merging
+     * Method used in order to compact the internal data structure by merging
      * internal data members
      */
-    public void collapse();
+    public void compact();
+
+    /**
+     * Method which allows all the internal values from a second object to be
+     * added to this one. In case of a conflict the merge(). This method should
+     * not be destructive to the source object and all destruction should be
+     * done outside the method.
+     *
+     * @param source The object to add from
+     */
+    public void addAll(M source);
 
     /**
      * Method used in order to merge two values into one, frequently called
@@ -45,6 +60,5 @@ public interface Collapsible<K> {
      * @param oldValue The old value. This is the value that gets merged TO
      * @param newValue The new value. This is the value that gets merged FROM
      */
-    public void merge(K oldValue, K newValue);
-
+    public void merge(E oldValue, E newValue);
 }

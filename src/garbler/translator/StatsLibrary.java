@@ -23,58 +23,37 @@
  */
 package garbler.translator;
 
-import java.util.ArrayList;
-import java.util.TreeMap;
-import java.util.Map.Entry;
-
 /**
  * Library for available characters and their respective statistics
  *
  * @author Rogue <Alice Q>
  */
-public class StatsLibrary extends CharMap<CharStats> {
-
-    @Override
-    public void merge(CharStats lowerEntry, CharStats upperEntry) {
-        
-    }
+public class StatsLibrary {
 
     public static void main(String[] args) {
         java.util.Random rand = new java.util.Random();
 
-        CharMap<OccurrenceList> map = new CharMap<OccurrenceList>() {
-            @Override
-            public void merge(OccurrenceList oldValue, OccurrenceList newValue) {
-                oldValue.addAll(newValue);
-            }
-        };
+        CharStats lc = new CharStats('a');
+        CharStats uc = new CharStats('A');
 
-        for (int test = 1; test <= 10; test++) {
-            System.out.println("TEST #" + test + " ------------------------------------------------------------------------------------------");
-            map.clear();
-            map.setCaseSensitive(rand.nextBoolean());
-            
-            System.out.println("\tCase sensitive: " + map.isCaseSensitive());
+        System.out.println(lc);
+        System.out.println(uc);
 
-            int size = 3 + rand.nextInt(5);
-            for (int i = 0; i < size; i++) {
-                char c = (char) (rand.nextInt(26) + 'a');
-                map.put(c, new OccurrenceList());
+        lc.addCharacterCorrelation('b', 1);
+        lc.addCharacterCorrelation('c', 2);
+        uc.addCharacterCorrelation('C', 2);
+        uc.addCharacterCorrelation('D', 3);
 
-                if (rand.nextFloat() > .5f) {
-                    map.put(Character.toUpperCase(c), new OccurrenceList());
-                }
-            }
+        lc.addInstance();
+        lc.addInstance();
+        uc.addInstance();
+        uc.addInstance();
 
-            for (OccurrenceList list : map.values()) {
-                for (int i = 0; i < 3; i++) {
-                    list.increment(rand.nextInt(7), 1 + rand.nextInt(3));
-                }
-            }
-            System.out.println("\t" + map.getAlphabet()  + map);
+        System.out.println(lc);
+        System.out.println(uc);
 
-            map.collapse();
-            System.out.println("\t" + map.getAlphabet() + map);
-        }
+        lc.addAll(uc);
+
+        System.out.println(lc);
     }
 }
