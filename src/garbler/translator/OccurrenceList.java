@@ -340,10 +340,8 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     }
 
     public float getProbabilityMass(int index) {
-        if (index < 0 || index >= map.length) {
+        if (index < 0 || index >= map.length || total == 0) {
             return 0.0f;
-        } else if (total == 0) {
-            return (float) 1 / map.length;
         }
         return (float) map[index] / total;
     }

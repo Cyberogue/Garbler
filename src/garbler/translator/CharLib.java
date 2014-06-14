@@ -24,6 +24,7 @@
 package garbler.translator;
 
 import java.util.TreeMap;
+import java.util.ArrayList;
 
 /**
  * Library for available characters and their respective statistics
@@ -34,34 +35,38 @@ public class CharLib {
 
     // MAP OF ALL THE STORED CHARACTERS IN THE SYSTEM
     private TreeMap<Character, CharStats> lib;
-    
+
+    // LIST OF ALL THE KEYS BEING USED IN THE LIBRARY
+    private ArrayList<Character> keys;
+
+    /**
+     * Default constructor
+     */
+    public CharLib() {
+        lib = new TreeMap();
+        keys = new ArrayList();
+    }
+
     public static void main(String[] args) {
         System.out.println("Start run");
-        
+
         CharLib lib = new CharLib();
-        
+
         java.util.Random rand = new java.util.Random();
-        
+
         CharStats stats = new CharStats('a');
-        System.out.println(stats.toString());
-        
-        int[] temp = new int[3 + rand.nextInt(7)];
-        for (int i = 0; i < temp.length; i++) {
-            temp[i] = (rand.nextFloat() > .5f ? rand.nextInt(10) : 0);
+        System.out.println(stats);
+
+        for (char i = 'a'; i < 'h'; i++) {
+            stats.addField(i);
         }
-        
-        OccurrenceList o = new OccurrenceList(temp);
-        
-        System.out.println(o.toString());
-        System.out.println(o.getTotal());
-        System.out.println(o.getAverage());
-        System.out.println(o.getVariance());
-        
-        System.out.println();
-        for (int i = 0; i < temp.length; i++) {
-            System.out.println(i + "[" + o.getCount(i) + "]: " + o.getProbabilityMass(i));
-        }
-        
+
+        System.out.println(stats.getOccurrenceList('a'));
+        System.out.println(stats.addOccurrence('b', 8, 5));
+        System.out.println(stats.getOccurrenceList('c'));
+
+        System.out.println(stats);
+
         System.out.println("End run");
     }
 }
