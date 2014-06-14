@@ -34,6 +34,7 @@ import java.util.Map.Entry;
  */
 public class StatsLibrary extends CharMap<CharStats> {
 
+    @Override
     public void merge(CharStats lowerEntry, CharStats upperEntry) {
         
     }

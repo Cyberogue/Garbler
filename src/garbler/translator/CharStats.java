@@ -67,6 +67,7 @@ public class CharStats {
         endPosition = new OccurrenceList();
 
         correlations = new CharMap<OccurrenceList>() {
+            // WHEN A MERGE IS REQUIRED SIMPLY ADD ALL THE NEW VALUES TO THE OLD VALUES
             @Override
             public void merge(OccurrenceList oldValue, OccurrenceList newValue) {
                 oldValue.addAll(newValue);
