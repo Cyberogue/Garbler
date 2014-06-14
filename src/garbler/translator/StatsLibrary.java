@@ -23,6 +23,7 @@
  */
 package garbler.translator;
 
+import java.util.ArrayList;
 import java.util.TreeMap;
 
 /**
@@ -31,6 +32,10 @@ import java.util.TreeMap;
  * @author Rogue <Alice Q>
  */
 public class StatsLibrary extends TreeMap<Character, CharStats> {
+
+    // WHETHER OR NOT CASE MATTERS
+    private boolean ignoreCase = true;
+
     /**
      * Adds a new field to the internal data structures
      *
@@ -39,25 +44,74 @@ public class StatsLibrary extends TreeMap<Character, CharStats> {
      * exists
      */
     public boolean addField(char key) {
-        if (super.containsKey(key)) {
+        char _key = getKey(key);
+        if (containsKey(_key)) {
             return false;
         } else {
-            super.put(key, new CharStats(key));
+            put(_key, new CharStats(_key));
             return true;
         }
     }
 
+    /**
+     * The character alphabet being used by the library. That is - every single
+     * character field that has been added.
+     *
+     * @return An array of all the characters being used
+     */
+    public Character[] getAlphabet() {
+        return keySet().toArray(new Character[0]);
+    }
+
+    /**
+     * Method to ignore case if invoked
+     *
+     * @param key The character to use as a key
+     * @return The same character with its case changed if required
+     */
+    public Character getKey(char key) {
+        return (ignoreCase ? Character.toLowerCase(key) : key);
+    }
+
+    /**
+     * Use this to ignore or take into account character case. This does not
+     * change former values, however.
+     *
+     * @param active true in order to ignore case, false in order to take case
+     * into account
+     */
+    public void setIgnoreCase(boolean active) {
+        // SET THE NEW VALUE
+        this.ignoreCase = active;
+    }
+
     public static void main(String[] args) {
         java.util.Random rand = new java.util.Random();
-        StatsLibrary lib = new StatsLibrary();
-        CharStats cs = new CharStats('b');
 
-        for (char c = 'a'; c <= 'f'; c++){
+        StatsLibrary lib = new StatsLibrary();
+        System.out.println(lib);
+
+        for (char c = 'a'; c <= 'd'; c++) {
             lib.addField(c);
         }
-        
         System.out.println(lib);
-        
-        System.out.println("End run");
+
+        for (char c = 'A'; c <= 'F'; c++) {
+            lib.addField(c);
+        }
+        System.out.println(lib);
+
+        lib.setIgnoreCase(false);
+        for (char c = 'A'; c <= 'F'; c++) {
+            lib.addField(c);
+        }
+        lib.get('B').add('x', 5);
+        System.out.println(lib);
+
+        lib.setIgnoreCase(true);
+        for (char c = 'A'; c <= 'F'; c++) {
+            lib.addField(c);
+        }
+        System.out.println(lib);
     }
 }

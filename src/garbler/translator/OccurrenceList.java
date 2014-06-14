@@ -6,7 +6,7 @@
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * to use, copy, modify, addAll, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
@@ -57,10 +57,15 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      * Method for constructing an OccurrenceList out of a predetermined array
      *
      * @param list An array of integer values
+     * @throws IllegalArgumentException if any of the values inside list are
+     * negative
      */
     public OccurrenceList(int[] list) {
         map = list.clone();
         for (int i : map) {
+            if (i < 0) {
+                throw new IllegalArgumentException("Negative values not allowed");
+            }
             total += i;
         }
     }
@@ -72,6 +77,8 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     // - get
     // - getTotal
     // - size
+    // - values
+    // - addAll (2)
     /**
      * Increments the count by one at a specified 0-indexed value, resizing the
      * structure as needed
@@ -171,6 +178,45 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      */
     public int size() {
         return map.length;
+    }
+
+    /**
+     * Gets an array of all the values in this object. Note that this array is
+     * 'safe', meaning that modifying it does not modify the internal structure.
+     *
+     * @return An array of integers representing this object
+     */
+    public int[] values() {
+        return map.clone();
+    }
+
+    /**
+     * Merges the values held internally with the values held inside another
+     * OccurrenceList by adding their values, resizing itself if needed
+     *
+     * @param list An OccurrenceList to addAll with
+     */
+    public void addAll(OccurrenceList list) {
+        addAll(list.values());
+    }
+
+    /**
+     * Merges the values held internally with a new array of values by adding up
+     * all their values, resizing itself if needed
+     *
+     * @param values An array of int values to addAll with
+     */
+    public void addAll(int[] values) {
+        // INCREASE THE SIZE OF THE ARRAY IF NEEDED
+        if (values.length > map.length) {
+            int[] temp = new int[values.length];
+            System.arraycopy(map, 0, temp, 0, map.length);
+            map = temp;
+        }
+        // AND ADD ALL THE VALUES
+        for (int i = 0; i < map.length; i++) {
+            map[i] += values[i];
+        }
     }
 
     // VALUE RETRIEVAL
@@ -303,7 +349,6 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
 
         return index;
     }
-
     // STATISTICS
     // - getAverage 
     // - getVariance
@@ -366,7 +411,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
 
     @Override
     public int compareTo(OccurrenceList list) {
-        return Integer.compare(map.length, list.size());
+        return Integer.compare(this.map.length, list.map.length);
     }
 
     @Override
