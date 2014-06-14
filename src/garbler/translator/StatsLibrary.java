@@ -25,6 +25,7 @@ package garbler.translator;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 /**
  * Library for available characters and their respective statistics
@@ -48,7 +49,9 @@ public class StatsLibrary extends TreeMap<Character, CharStats> {
         if (containsKey(_key)) {
             return false;
         } else {
-            put(_key, new CharStats(_key));
+            CharStats stats = new CharStats(_key);
+            stats.ignoreCases(ignoreCase);
+            put(_key, stats);
             return true;
         }
     }
@@ -80,15 +83,65 @@ public class StatsLibrary extends TreeMap<Character, CharStats> {
      * @param active true in order to ignore case, false in order to take case
      * into account
      */
-    public void setIgnoreCase(boolean active) {
+    public void ignoreCases(boolean active) {
         // SET THE NEW VALUE
         this.ignoreCase = active;
+
+        // AND PASS THIS ON TO THE CHILDREN
+        for (CharStats stats : values()) {
+            stats.ignoreCases(active);
+        }
+    }
+
+    /**
+     * Collapses the internal data structure by making all the keys lowercase,
+     * merging with necessary. Please not that this method is destructive and
+     * there is no way to undo this.
+     */
+    public void collapseCases() {
+        // LIST OF CRAP TO REMOVE AND REPLACE
+        ArrayList<Character> trashbin = new ArrayList(size());
+        ArrayList<Entry<Character, CharStats>> uppercase = new ArrayList(size());
+
+        // ITERATE THROUGH IT ALL AND FIND THE UPPERCASE ENTRIES
+        for (Entry<Character, CharStats> e : entrySet()) {
+            if (Character.isUpperCase(e.getKey())) {
+                uppercase.add(e);
+            }
+        }
+
+        // NOW SWAP THE NECESSARY KEYS
+        for (Entry<Character, CharStats> e : uppercase) {
+            Character keyUpper = e.getKey();
+            CharStats entryUpper = e.getValue();
+            Character keyLower = Character.toLowerCase(keyUpper);
+            CharStats entryLower = get(keyLower);
+
+            if (entryLower == null) {
+                put(keyLower, entryUpper);
+            } else {
+                entryLower.addAll(entryUpper);
+            }
+            trashbin.add(keyUpper);
+        }
+
+        // DELETE THE UPPERCASE KEYS
+        for (Character key : trashbin) {
+            remove(key);
+        }
+
+        // AND COMPACT THE RESULTS
+        for (CharStats stats : values()) {
+            stats.collapseCases();
+        }
+
     }
 
     public static void main(String[] args) {
         java.util.Random rand = new java.util.Random();
 
         StatsLibrary lib = new StatsLibrary();
+        lib.ignoreCases(false);
         System.out.println(lib);
 
         for (char c = 'a'; c <= 'd'; c++) {
@@ -101,17 +154,16 @@ public class StatsLibrary extends TreeMap<Character, CharStats> {
         }
         System.out.println(lib);
 
-        lib.setIgnoreCase(false);
         for (char c = 'A'; c <= 'F'; c++) {
             lib.addField(c);
         }
-        lib.get('B').add('x', 5);
+        lib.get('b').add('x', 1);
+        lib.get('B').add('x', 1);
+        lib.get('B').add('X', 1);
+        lib.get('B').add('y', 1);
         System.out.println(lib);
 
-        lib.setIgnoreCase(true);
-        for (char c = 'A'; c <= 'F'; c++) {
-            lib.addField(c);
-        }
+        lib.collapseCases();
         System.out.println(lib);
     }
 }

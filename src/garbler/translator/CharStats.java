@@ -25,6 +25,7 @@ package garbler.translator;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 /**
  * Class containing the statistics for a single character
@@ -67,10 +68,10 @@ public class CharStats extends TreeMap<Character, OccurrenceList> implements jav
      */
     public boolean addField(char key) {
         char _key = getKey(key);
-        OccurrenceList list = super.get(_key);
+        OccurrenceList list = get(_key);
 
         if (list == null) {
-            super.put(_key, new OccurrenceList(DEFAULT_LIST_SIZE));
+            put(_key, new OccurrenceList(DEFAULT_LIST_SIZE));
             return true;
         } else {
             return false;
@@ -86,11 +87,11 @@ public class CharStats extends TreeMap<Character, OccurrenceList> implements jav
      */
     public OccurrenceList getSafe(char key) {
         char _key = getKey(key);
-        OccurrenceList list = super.get(_key);
+        OccurrenceList list = get(_key);
 
         if (list == null) {
             list = new OccurrenceList(DEFAULT_LIST_SIZE);
-            super.put(_key, list);
+            put(_key, list);
         }
         return list;
     }
@@ -103,7 +104,7 @@ public class CharStats extends TreeMap<Character, OccurrenceList> implements jav
      * @return The OccurrenceList corresponding to a character key
      */
     public OccurrenceList getOccurrenceList(char key) {
-        return super.get(getKey(key));
+        return get(getKey(key));
     }
 
     /**
@@ -116,7 +117,7 @@ public class CharStats extends TreeMap<Character, OccurrenceList> implements jav
      * exist
      */
     public void add(char key, int index) {
-        add(getKey(key), index, 1);
+        add(key, index, 1);
     }
 
     /**
@@ -131,12 +132,12 @@ public class CharStats extends TreeMap<Character, OccurrenceList> implements jav
      * exist
      */
     public void add(char key, int index, int quantity) {
-        key = getKey(key);
-        OccurrenceList list = super.get(key);
+        char _key = getKey(key);
+        OccurrenceList list = get(_key);
 
         if (list == null) {
             list = new OccurrenceList(DEFAULT_LIST_SIZE);
-            super.put(key, list);
+            put(_key, list);
         }
 
         list.increment(index, quantity);
@@ -160,7 +161,7 @@ public class CharStats extends TreeMap<Character, OccurrenceList> implements jav
      * @param active true in order to ignore case, false in order to take case
      * into account
      */
-    public void setIgnoreCase(boolean active) {
+    public void ignoreCases(boolean active) {
         this.ignoreCase = active;
     }
 
@@ -180,13 +181,52 @@ public class CharStats extends TreeMap<Character, OccurrenceList> implements jav
      * @param stats The CharStats to addAll from
      */
     public void addAll(CharStats stats) {
-        for (Character key : stats.keySet()) {
-            OccurrenceList list = super.get(key);
-            if (list == null) {
-                super.put(key, list);
+        for (Entry<Character, OccurrenceList> e : stats.entrySet()) {
+            Character key = e.getKey();
+            OccurrenceList entry = e.getValue();
+            OccurrenceList entryLocal = get(key);
+            if (entryLocal == null) {
+                put(key, entry);
             } else {
-                list.addAll(super.get(key));
+                entryLocal.addAll(entry);
             }
+        }
+    }
+
+    /**
+     * Collapses the internal data structure by making all the keys lowercase,
+     * merging with necessary. Please not that this method is destructive and
+     * there is no way to undo this.
+     */
+    public void collapseCases() {
+        // LIST OF CRAP TO REMOVE
+        ArrayList<Character> trashbin = new ArrayList(size());
+
+        // NOTE: SINCE OCCURRENCELISTS DON'T HAVE CONCURRENCY ISSUES, THIS CAN BE DONE MUCH FASTER THAN STATSLIBRARY
+        // ITERATE THROUGH IT ALL
+        for (Entry<Character, OccurrenceList> e : super.entrySet()) {
+            if (Character.isUpperCase(e.getKey())) {
+                // GET RELEVANT FIELDS
+                Character keyUpper = e.getKey();
+                OccurrenceList entryUpper = e.getValue();
+
+                Character keyLower = Character.toLowerCase(keyUpper);
+                OccurrenceList entryLower = get(keyLower);
+
+                //  MERGE
+                if (entryLower == null) {
+                    put(keyLower, entryUpper);
+                } else {
+                    entryLower.addAll(entryUpper);
+                }
+
+                // AND MARK THE KEY FOR DELETION
+                trashbin.add(keyUpper);
+            }
+        }
+        // NOW DELETE THE DEPRECATED KEYS
+        for (Character key : trashbin) {
+            remove(key);
         }
     }
 
