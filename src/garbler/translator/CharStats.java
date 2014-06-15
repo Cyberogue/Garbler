@@ -23,6 +23,9 @@
  */
 package garbler.translator;
 
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
 /**
  * Class intended to hold statistics for a single character
  *
@@ -239,8 +242,9 @@ public class CharStats {
     // - getCount
     // - getDistancesFromEnd
     // - getDistancesFromStart
-    // - getCorrelations
+    // - getCorrelationWith
     // - getAllCorrelations
+    // - getAllCorrelationsWith
     /**
      * The number of occurrences
      *
@@ -279,7 +283,7 @@ public class CharStats {
      * @return An OccurrenceList representation of the number of tracked
      * correlations, or null if none exists
      */
-    public OccurrenceList getCorrelations(char c) {
+    public OccurrenceList getCorrelationWith(char c) {
         return correlations.get(c);
     }
 
@@ -291,8 +295,23 @@ public class CharStats {
      * @return A Set of Entries each containing an OccurrenceList and a
      * character representation
      */
-    public java.util.Set<java.util.Map.Entry<Character, OccurrenceList>> getAllCorrelations() {
-        return correlations.entrySet();
+    public java.util.Map<Character, OccurrenceList> getAllCorrelations() {
+        return correlations;
+    }
+
+    public java.util.Map<Character, OccurrenceList> getCorrelationsAtDistance(int distance) {
+        java.util.Map<Character, OccurrenceList> valid = new TreeMap();
+
+        for (Entry<Character, OccurrenceList> entry : correlations.entrySet()) {
+            OccurrenceList value = entry.getValue();
+            Character key = entry.getKey();
+
+            if (value != null && distance < value.size() && value.get(distance) > 0) {
+                valid.put(key, value);
+            }
+        }
+
+        return valid;
     }
 
     // STRUCTURE MODIFIERS
@@ -371,6 +390,6 @@ public class CharStats {
 
     @Override
     public String toString() {
-        return "[" + correlations.getAlphabet().toString() + " " + occurrences + "]";
+        return correlations.keySet().toString();
     }
 }

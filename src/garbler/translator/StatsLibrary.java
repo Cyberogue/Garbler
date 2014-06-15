@@ -152,19 +152,34 @@ public class StatsLibrary extends CharMap<CharStats> {
     public static void main(String[] args) {
         StatsLibrary lib = new StatsLibrary();
 
-        System.out.println("\nParse 1 paragraph of Lorem Ipsum, don't count punctuation");
-        lib.parseLine("Lorem ipsum dolor sit aAmet, his option reformidans te, tation gubergren ei cum. Sea atomorum quaerendum ei, pri vivendo oportere ex. No debet scaevola ius.  Dolore soluta electram sit id, an nibh ridens sea. Errem noster intellegam eum ei, te eum audire bonorum veritus. Vix recusabo argumentum ne, alii oratio vix ne. Vel sensibus voluptaria ne.", "[\\s,.!?]+");
+        lib.parseWord("abcde");
+        lib.parseWord("aaaaa");
+        lib.parseWord("aabbb");
 
-        OccurrenceList wlen = lib.getWordLengths();
-        System.out.println("All Word Lengths: " + wlen);
-        System.out.println("Average WL: " + wlen.getAverage());
-        System.out.println("  Variance: " + wlen.getVariance());
-        System.out.println("   Std Dev: " + Math.sqrt(wlen.getVariance()));
-        System.out.println("Most common WL: " + wlen.getIndexOfMax());
-        System.out.println("Max WL: " + wlen.getLastNonzeroEntry());
-        System.out.println("Min WL: " + wlen.getFirstNonzeroEntry());
-        for (CharStats stat : lib.values()) {
-            System.out.println("\t" + stat.getCharValue() + "\t" + stat.getAllCorrelations());
-        }
+        //System.out.println(lib);
+        //System.out.println(lib.get('a').getCorrelationWith('c'));
+        //System.out.println(lib.get('a').getCorrelationsAtDistance(2));
+        OccurrenceList list = new OccurrenceList(new int[]{0, 0, 2, 4, 6, 5, 4, 3, 2, 0});
+
+        System.out.println(list);
+        System.out.println("FIND MAX: " + list.find(SearchPhrase.MAX_VALUE));
+        System.out.println("FIND MIN: " + list.find(SearchPhrase.MIN_VALUE));
+        System.out.println("FIND MIN>0: " + list.find(SearchPhrase.FIND_FIRST, SearchPhrase.MIN_NONZERO_VALUE));
+        System.out.println("FIND NONZERO: " + list.find(SearchPhrase.FIND_FIRST, SearchPhrase.NONZERO_VALUE));
+        System.out.println("FIND ZERO: " + list.find(SearchPhrase.FIND_FIRST, SearchPhrase.ZERO_VALUE));
+        System.out.println("FIND LAST MAX: " + list.find(SearchPhrase.FIND_LAST, SearchPhrase.MAX_VALUE));
+        System.out.println("FIND LAST MIN: " + list.find(SearchPhrase.FIND_LAST, SearchPhrase.MIN_VALUE));
+        System.out.println("FIND LAST MIN>0: " + list.findFromEnd(SearchPhrase.MIN_NONZERO_VALUE));
+        System.out.println("FIND LAST NONZERO: " + list.findFromEnd(SearchPhrase.NONZERO_VALUE));
+        System.out.println("FIND LAST ZERO: " + list.findFromEnd(SearchPhrase.ZERO_VALUE));
+        System.out.println("FIND INDEX OF MAX: " + list.findIndexOf(SearchPhrase.FIND_FIRST, SearchPhrase.MAX_VALUE));
+        System.out.println("----------");
+        System.out.println("FIND MAX IN FIRST FIVE TERMS: " + list.find(SearchPhrase.FIND_FIRST, SearchPhrase.MAX_VALUE, 0, 5));
+        System.out.println("FIND INDEX OF MAX IN FIRST FIVE TERMS: " + list.findIndexOf(SearchPhrase.FIND_FIRST, SearchPhrase.MAX_VALUE));
+        System.out.println("FIND MAX IN LAST FIVE TERMS: " + list.find(SearchPhrase.FIND_LAST, SearchPhrase.MAX_VALUE, list.size()-5, 5));
+        System.out.println("FIND INDEX OF MAX IN LAST FIVE TERMS: " + list.findIndexOf(SearchPhrase.FIND_LAST, SearchPhrase.MAX_VALUE));
+        System.out.println("----------");
+        System.out.println("MAX VALUE: ")
+
     }
 }
