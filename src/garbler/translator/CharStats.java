@@ -77,7 +77,8 @@ public class CharStats {
     // GET-SETS
     // - setCaseSensitive
     // - isCaseSensitive
-    // - getDictionary
+    // - getCharValue
+    // - getAlphabet
     /**
      * Method to set the case sensitivity of the internal character-sorted
      * structures
@@ -98,6 +99,15 @@ public class CharStats {
      */
     public boolean isCaseSensitive() {
         return correlations.isCaseSensitive();
+    }
+
+    /**
+     * Method to get the character value associated with this instance
+     *
+     * @return A character representation of the value
+     */
+    public char getCharValue() {
+        return name;
     }
 
     /**
@@ -174,16 +184,8 @@ public class CharStats {
      * valid word range
      */
     public int addWord(String word) {
-        String wAdjusted = word;
-        char cAdjusted = name;
-
-        if (!correlations.isCaseSensitive()) {
-            wAdjusted = word.toLowerCase();
-            cAdjusted = Character.toLowerCase(name);
-        }
-
         // ADJUSTING FOR CASE SENSITIVITY
-        int firstIndexOf = word.indexOf(cAdjusted);
+        int firstIndexOf = word.indexOf(name);
         int fromIndex = firstIndexOf;
 
         // CHECK THAT IT'S VALID
@@ -193,7 +195,6 @@ public class CharStats {
 
         // IT PASSED THE TEST SO ADD EVERYTHING
         startDistances.increment(fromIndex);
-        System.out.println(word.length() + "\t" + fromIndex);
         endDistances.increment(word.length() - fromIndex);
         occurrences++;
 
@@ -216,13 +217,7 @@ public class CharStats {
      * valid word range
      */
     public void addWord(String word, int fromIndex) {
-        // PRELIMINARY CHECKS AND ADJUSTING FOR CASE SENSITIVITY
-        char indexChar = word.charAt(fromIndex);
-
-        if (!correlations.isCaseSensitive()) {
-            indexChar = Character.toLowerCase(indexChar);
-        }
-        if (indexChar != name) {
+        if (word.charAt(fromIndex) != name) {
             return;
         }
         if (fromIndex < 0 || fromIndex >= word.length()) {
@@ -231,7 +226,6 @@ public class CharStats {
 
         // IT PASSED THE TEST SO ADD EVERYTHING
         startDistances.increment(fromIndex);
-        System.out.println(word.length() + "\t" + fromIndex);
         endDistances.increment(word.length() - fromIndex);
         occurrences++;
 
@@ -377,6 +371,6 @@ public class CharStats {
 
     @Override
     public String toString() {
-        return name + "=" + correlations.getAlphabet().toString() + " " + occurrences;
+        return "[" + correlations.getAlphabet().toString() + " " + occurrences + "]";
     }
 }
