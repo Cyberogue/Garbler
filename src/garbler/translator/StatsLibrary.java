@@ -155,7 +155,9 @@ public class StatsLibrary extends CharMap<CharStats> {
         lib.clear();
         lib.parseLine("Lorem ipsum dolor sit amet");
 
-        System.out.println("\tWordlength: " + lib.getWordLengths());
+        OccurrenceList wlen = lib.getWordLengths();
+
+        System.out.println("All Word Lengths: " + wlen);
         for (CharStats stat : lib.values()) {
             System.out.println("\t" + stat.getCharValue() + "\t" + stat.getAllCorrelations());
         }
@@ -164,7 +166,14 @@ public class StatsLibrary extends CharMap<CharStats> {
         lib.clear();
         lib.parseLine("Lorem ipsum dolor sit amet, his option reformidans te, tation gubergren ei cum. Sea atomorum quaerendum ei, pri vivendo oportere ex. No debet scaevola ius. Dolore soluta electram sit id, an nibh ridens sea. Errem noster intellegam eum ei, te eum audire bonorum veritus. Vix recusabo argumentum ne, alii oratio vix ne. Vel sensibus voluptaria ne.");
 
-        System.out.println("\tWordlength: " + lib.getWordLengths());
+        wlen = lib.getWordLengths();
+        System.out.println("All Word Lengths: " + wlen);
+        System.out.println("Average WL: " + wlen.getAverage());
+        System.out.println("  Variance: " + wlen.getVariance());
+        System.out.println("   Std Dev: " + Math.sqrt(wlen.getVariance()));
+        System.out.println("Most common WL: " + wlen.getIndexOfMax());
+        System.out.println("Max WL: " + wlen.getLastNonzeroEntry());
+        System.out.println("Min WL: " + wlen.getFirstNonzeroEntry());
         for (CharStats stat : lib.values()) {
             System.out.println("\t" + stat.getCharValue() + "\t" + stat.getAllCorrelations());
         }
