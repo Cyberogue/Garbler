@@ -212,10 +212,11 @@ public class CharStats {
      * characters. This does not guarantee that there is an entry for every
      * single character, just the ones which have been tracked.
      *
-     * @return A Collection of OccurrenceLists each representing a correlation
+     * @return A Set of Entries each containing an OccurrenceList and a
+     * character representation
      */
-    public java.util.Collection<OccurrenceList> getAllCorrelations() {
-        return correlations.values();
+    public java.util.Set<java.util.Map.Entry<Character, OccurrenceList>> getAllCorrelations() {
+        return correlations.entrySet();
     }
 
     // STRUCTURE MODIFIERS
@@ -289,9 +290,9 @@ public class CharStats {
         // TOTAL COUNT
         occurrences += stats.occurrences;
     }
-    
+
     @Override
-    public String toString(){
+    public String toString() {
         return correlations.getAlphabet().toString() + " " + occurrences;
     }
 }

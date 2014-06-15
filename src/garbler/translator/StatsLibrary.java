@@ -39,8 +39,12 @@ public class StatsLibrary {
         System.out.println(lc);
         System.out.println(uc);
 
+        lc.setCaseSensitive(false);
+        uc.setCaseSensitive(true);
+
         lc.addCharacterCorrelation('b', 1);
-        lc.addCharacterCorrelation('c', 2);
+        lc.addCharacterCorrelation('c', 3);
+        lc.addCharacterCorrelation('C', 2);
         uc.addCharacterCorrelation('C', 2);
         uc.addCharacterCorrelation('D', 3);
 
@@ -49,11 +53,11 @@ public class StatsLibrary {
         uc.addInstance();
         uc.addInstance();
 
-        System.out.println(lc);
-        System.out.println(uc);
+        System.out.println(lc.getAllCorrelations());
+        System.out.println(uc.getAllCorrelations());
 
         lc.addAll(uc);
 
-        System.out.println(lc);
+        System.out.println(lc.getAllCorrelations());
     }
 }
