@@ -133,7 +133,7 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
                 super.put(cLow, vHigh);
             } else if (vLow != vHigh) {
                 // ASK THE USER WHAT TO DO
-                merge(vLow, vHigh);
+                super.put(cLow, merge(vLow, vHigh));
             }
             // IF THE SAME OBJECT IS HELD IN BOTH, DO NOTHING
 
@@ -143,7 +143,7 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
     }
 
     @Override
-    public void addAll(CharMap<E> obj) {
+    public CharMap<E> addAll(CharMap<E> obj) {
         for (Entry<Character, E> entry : obj.entrySet()) {
             E existing = get(entry.getKey());
             if (existing == null) {
@@ -154,6 +154,7 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
                 merge(existing, entry.getValue());
             }
         }
+        return this;
     }
 
     // WRAPPER METHODS

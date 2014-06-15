@@ -71,8 +71,8 @@ public class CharStats {
         correlations = new CharMap<OccurrenceList>() {
             // WHEN A MERGE IS REQUIRED SIMPLY ADD ALL THE NEW VALUES TO THE OLD VALUES
             @Override
-            public void merge(OccurrenceList oldValue, OccurrenceList newValue) {
-                oldValue.addAll(newValue);
+            public OccurrenceList merge(OccurrenceList oldValue, OccurrenceList newValue) {
+                return oldValue.addAll(newValue);
             }
         };
     }
@@ -299,13 +299,22 @@ public class CharStats {
         return correlations;
     }
 
-    public java.util.Map<Character, OccurrenceList> getCorrelationsAtDistance(int distance) {
-        java.util.Map<Character, OccurrenceList> valid = new TreeMap();
+    public CharMap<OccurrenceList> getCorrelationsAtDistance(int distance) {
+        // NEW CHARMAP, JUST ADD OCCURRENCE LISTS
+        CharMap<OccurrenceList> valid = new CharMap<OccurrenceList>(correlations.isCaseSensitive()) {
+            @Override
+            public OccurrenceList merge(OccurrenceList oldValue, OccurrenceList newValue) {
+                oldValue.addAll(newValue);
+                return oldValue;
+            }
+        };
 
+        // PARSE THROUGH THEM ALL
         for (Entry<Character, OccurrenceList> entry : correlations.entrySet()) {
             OccurrenceList value = entry.getValue();
             Character key = entry.getKey();
 
+            // IF IT CONTAINS DATA, FETCH IT
             if (value != null && distance < value.size() && value.get(distance) > 0) {
                 valid.put(key, value);
             }
@@ -371,7 +380,7 @@ public class CharStats {
      *
      * @param stats The second CharStats to inherit values from
      */
-    public void addAll(CharStats stats) {
+    public CharStats addAll(CharStats stats) {
         // SET SENSITIVITY
         if (stats.correlations.isCaseSensitive()) {
             this.correlations.setCaseSensitive(true);
@@ -386,6 +395,8 @@ public class CharStats {
 
         // TOTAL COUNT
         occurrences += stats.occurrences;
+
+        return this;
     }
 
     @Override

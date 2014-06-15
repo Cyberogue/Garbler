@@ -23,6 +23,8 @@
  */
 package garbler.translator;
 
+import java.util.Locale;
+
 /**
  * Library for available characters and their respective statistics
  *
@@ -56,6 +58,7 @@ public class StatsLibrary extends CharMap<CharStats> {
     // - parseWord
     // - parseLine (2)
     // - getWordLengths
+    // - getCorrelationsMatching
     /**
      * Method which parseLineLines an entire word and adds all the characters
      * within to the internal statistics tracking structures, as well as general
@@ -66,7 +69,7 @@ public class StatsLibrary extends CharMap<CharStats> {
     public void parseWord(String word) {
         // CASE SENSITIVITY
         if (!isCaseSensitive()) {
-            word = word.toLowerCase();
+            word = word.toLowerCase(Locale.ROOT);
         }
 
         // WORD STATISTICS
@@ -125,16 +128,27 @@ public class StatsLibrary extends CharMap<CharStats> {
         return wordLength;
     }
 
+    public CharMap<Integer> getCorrelationsMatching(String s) {
+        CharMap<Integer> results = new CharMap<Integer>() {
+            @Override
+            public Integer merge(Integer oldValue, Integer newValue) {
+                return (oldValue + newValue);
+            }
+        };
+
+        return null;
+    }
+
     // OVERWRITTEN METHODS
     // - merge
     // - setCaseSensitive
     @Override
-    public final void merge(CharStats oldValue, CharStats newValue) {
-        oldValue.addAll(newValue);
+    public CharStats merge(CharStats oldValue, CharStats newValue) {
+        return oldValue.addAll(newValue);
     }
 
     @Override
-    public final void setCaseSensitive(boolean active) {
+    public void setCaseSensitive(boolean active) {
         super.setCaseSensitive(active);
         for (CharStats stats : values()) {
             stats.setCaseSensitive(active);
@@ -142,7 +156,7 @@ public class StatsLibrary extends CharMap<CharStats> {
     }
 
     @Override
-    public final void clear() {
+    public void clear() {
         super.clear();
         wordLength.clear();
     }
@@ -156,30 +170,9 @@ public class StatsLibrary extends CharMap<CharStats> {
         lib.parseWord("aaaaa");
         lib.parseWord("aabbb");
 
-        //System.out.println(lib);
-        //System.out.println(lib.get('a').getCorrelationWith('c'));
-        //System.out.println(lib.get('a').getCorrelationsAtDistance(2));
-        OccurrenceList list = new OccurrenceList(new int[]{0, 0, 2, 4, 6, 5, 4, 3, 2, 0});
-
-        System.out.println(list);
-        System.out.println("FIND MAX: " + list.find(SearchPhrase.MAX_VALUE));
-        System.out.println("FIND MIN: " + list.find(SearchPhrase.MIN_VALUE));
-        System.out.println("FIND MIN>0: " + list.find(SearchPhrase.FIND_FIRST, SearchPhrase.MIN_NONZERO_VALUE));
-        System.out.println("FIND NONZERO: " + list.find(SearchPhrase.FIND_FIRST, SearchPhrase.NONZERO_VALUE));
-        System.out.println("FIND ZERO: " + list.find(SearchPhrase.FIND_FIRST, SearchPhrase.ZERO_VALUE));
-        System.out.println("FIND LAST MAX: " + list.find(SearchPhrase.FIND_LAST, SearchPhrase.MAX_VALUE));
-        System.out.println("FIND LAST MIN: " + list.find(SearchPhrase.FIND_LAST, SearchPhrase.MIN_VALUE));
-        System.out.println("FIND LAST MIN>0: " + list.findFromEnd(SearchPhrase.MIN_NONZERO_VALUE));
-        System.out.println("FIND LAST NONZERO: " + list.findFromEnd(SearchPhrase.NONZERO_VALUE));
-        System.out.println("FIND LAST ZERO: " + list.findFromEnd(SearchPhrase.ZERO_VALUE));
-        System.out.println("FIND INDEX OF MAX: " + list.findIndexOf(SearchPhrase.FIND_FIRST, SearchPhrase.MAX_VALUE));
-        System.out.println("----------");
-        System.out.println("FIND MAX IN FIRST FIVE TERMS: " + list.find(SearchPhrase.FIND_FIRST, SearchPhrase.MAX_VALUE, 0, 5));
-        System.out.println("FIND INDEX OF MAX IN FIRST FIVE TERMS: " + list.findIndexOf(SearchPhrase.FIND_FIRST, SearchPhrase.MAX_VALUE));
-        System.out.println("FIND MAX IN LAST FIVE TERMS: " + list.find(SearchPhrase.FIND_LAST, SearchPhrase.MAX_VALUE, list.size()-5, 5));
-        System.out.println("FIND INDEX OF MAX IN LAST FIVE TERMS: " + list.findIndexOf(SearchPhrase.FIND_LAST, SearchPhrase.MAX_VALUE));
-        System.out.println("----------");
-        System.out.println("MAX VALUE: ")
-
+        System.out.println(lib);
+        System.out.println(lib.get('a').getCorrelationWith('c'));
+        System.out.println(lib.get('a').getAllCorrelations());
+        System.out.println(lib.get('a').getCorrelationsAtDistance(2));
     }
 }

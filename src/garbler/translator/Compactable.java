@@ -49,9 +49,10 @@ public interface Compactable<M, E> {
      * not be destructive to the source object and all destruction should be
      * done outside the method.
      *
-     * @param source The object to add from
+     * @param source The object to add from #return this should return the new
+     * value to use, most often a reference to itself
      */
-    public void addAll(M source);
+    public M addAll(M source);
 
     /**
      * Method used in order to merge two values into one, frequently called
@@ -60,5 +61,5 @@ public interface Compactable<M, E> {
      * @param oldValue The old value. This is the value that gets merged TO
      * @param newValue The new value. This is the value that gets merged FROM
      */
-    public void merge(E oldValue, E newValue);
+    public E merge(E oldValue, E newValue);
 }

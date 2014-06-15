@@ -204,9 +204,10 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      * OccurrenceList by adding their values, resizing itself if needed
      *
      * @param list An OccurrenceList to addAll with
+     * @return a reference to itself
      */
-    public void addAll(OccurrenceList list) {
-        addAll(list.values());
+    public OccurrenceList addAll(OccurrenceList list) {
+        return addAll(list.values());
     }
 
     /**
@@ -214,8 +215,9 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      * all their values, resizing itself if needed
      *
      * @param values An array of int values to addAll with
+     * @return a reference to itself
      */
-    public void addAll(int[] values) {
+    public OccurrenceList addAll(int[] values) {
         // INCREASE THE SIZE OF THE ARRAY IF NEEDED
         if (values.length > map.length) {
             int[] temp = new int[values.length];
@@ -226,6 +228,8 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
         for (int i = 0; i < values.length; i++) {
             map[i] += values[i];
         }
+
+        return this;
     }
 
     // VALUE RETRIEVAL
@@ -490,8 +494,8 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      * numbered sets
      */
     public float getMedian() {
-        int floorMid = map.length / 2;
-        int ceilMid = (map.length + 1) / 2;
+        int floorMid = (map.length - 1) / 2;
+        int ceilMid = map.length / 2;
 
         return (float) (map[ceilMid] + map[floorMid]) / 2;
     }
