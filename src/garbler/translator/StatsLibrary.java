@@ -70,7 +70,7 @@ public class StatsLibrary extends CharMap<CharStats> {
         }
 
         // WORD STATISTICS
-        wordLength.increment(word.length());
+        wordLength.increment(word.length() - 1);
 
         // CHARACTER STATISTICS - DO FOR EACH
         for (int i = 0; i < word.length(); i++) {
@@ -113,7 +113,9 @@ public class StatsLibrary extends CharMap<CharStats> {
     }
 
     /**
-     * Method for retrieval of data regarding all the word lengths encountered
+     * Method for retrieval of data regarding all the word lengths encountered.
+     * Please note that this list has indeces offset by 1. That is, the value at
+     * index 0 corresponds to word length 1.
      *
      * @return An OccurrenceList displaying all the word lengths that have been
      * found
@@ -151,7 +153,7 @@ public class StatsLibrary extends CharMap<CharStats> {
 
         StatsLibrary lib = new StatsLibrary(false);
 
-        System.out.println("parse 1 sentence of Lorem Ipsum");
+        System.out.println("\nParse 1 sentence of Lorem Ipsum");
         lib.clear();
         lib.parseLine("Lorem ipsum dolor sit amet");
 
@@ -162,9 +164,25 @@ public class StatsLibrary extends CharMap<CharStats> {
             System.out.println("\t" + stat.getCharValue() + "\t" + stat.getAllCorrelations());
         }
 
-        System.out.println("parse 1 paragraph of Lorem Ipsum");
+        System.out.println("\nParse 1 paragraph of Lorem Ipsum, count punctuation");
         lib.clear();
-        lib.parseLine("Lorem ipsum dolor sit amet, his option reformidans te, tation gubergren ei cum. Sea atomorum quaerendum ei, pri vivendo oportere ex. No debet scaevola ius. Dolore soluta electram sit id, an nibh ridens sea. Errem noster intellegam eum ei, te eum audire bonorum veritus. Vix recusabo argumentum ne, alii oratio vix ne. Vel sensibus voluptaria ne.");
+        lib.parseLine("Lorem ipsum dolor sit amet, his option reformidans te, tation gubergren ei cum. Sea atomorum quaerendum ei, pri vivendo oportere ex. No debet scaevola ius.  Dolore soluta electram sit id, an nibh ridens sea. Errem noster intellegam eum ei, te eum audire bonorum veritus. Vix recusabo argumentum ne, alii oratio vix ne. Vel sensibus voluptaria ne.", "[\\s]+");
+
+        wlen = lib.getWordLengths();
+        System.out.println("All Word Lengths: " + wlen);
+        System.out.println("Average WL: " + wlen.getAverage());
+        System.out.println("  Variance: " + wlen.getVariance());
+        System.out.println("   Std Dev: " + Math.sqrt(wlen.getVariance()));
+        System.out.println("Most common WL: " + wlen.getIndexOfMax());
+        System.out.println("Max WL: " + wlen.getLastNonzeroEntry());
+        System.out.println("Min WL: " + wlen.getFirstNonzeroEntry());
+        for (CharStats stat : lib.values()) {
+            System.out.println("\t" + stat.getCharValue() + "\t" + stat.getAllCorrelations());
+        }
+
+        System.out.println("\nParse 1 paragraph of Lorem Ipsum, don't count punctuation");
+        lib.clear();
+        lib.parseLine("Lorem ipsum dolor sit amet, his option reformidans te, tation gubergren ei cum. Sea atomorum quaerendum ei, pri vivendo oportere ex. No debet scaevola ius.  Dolore soluta electram sit id, an nibh ridens sea. Errem noster intellegam eum ei, te eum audire bonorum veritus. Vix recusabo argumentum ne, alii oratio vix ne. Vel sensibus voluptaria ne.", "[\\s,.!?]+");
 
         wlen = lib.getWordLengths();
         System.out.println("All Word Lengths: " + wlen);
