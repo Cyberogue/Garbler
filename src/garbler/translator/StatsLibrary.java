@@ -80,6 +80,7 @@ public class StatsLibrary extends CharMap<CharStats> {
             // MAKE SURE THAT IT EXISTS
             if (cStat == null) {
                 cStat = new CharStats(atIndex);
+                cStat.setCaseSensitive(isCaseSensitive());
                 put(atIndex, cStat);
             }
 
@@ -149,42 +150,12 @@ public class StatsLibrary extends CharMap<CharStats> {
     // MAIN TEST METHOD
     // THIS WILL BE TAKEN OUT OF THE FINAL VERSION AND IS JUST FOR TESTING TEST CASES
     public static void main(String[] args) {
-        java.util.Random rand = new java.util.Random();
-
-        StatsLibrary lib = new StatsLibrary(false);
-
-        System.out.println("\nParse 1 sentence of Lorem Ipsum");
-        lib.clear();
-        lib.parseLine("Lorem ipsum dolor sit amet");
-
-        OccurrenceList wlen = lib.getWordLengths();
-
-        System.out.println("All Word Lengths: " + wlen);
-        for (CharStats stat : lib.values()) {
-            System.out.println("\t" + stat.getCharValue() + "\t" + stat.getAllCorrelations());
-        }
-
-        System.out.println("\nParse 1 paragraph of Lorem Ipsum, count punctuation");
-        lib.clear();
-        lib.parseLine("Lorem ipsum dolor sit amet, his option reformidans te, tation gubergren ei cum. Sea atomorum quaerendum ei, pri vivendo oportere ex. No debet scaevola ius.  Dolore soluta electram sit id, an nibh ridens sea. Errem noster intellegam eum ei, te eum audire bonorum veritus. Vix recusabo argumentum ne, alii oratio vix ne. Vel sensibus voluptaria ne.", "[\\s]+");
-
-        wlen = lib.getWordLengths();
-        System.out.println("All Word Lengths: " + wlen);
-        System.out.println("Average WL: " + wlen.getAverage());
-        System.out.println("  Variance: " + wlen.getVariance());
-        System.out.println("   Std Dev: " + Math.sqrt(wlen.getVariance()));
-        System.out.println("Most common WL: " + wlen.getIndexOfMax());
-        System.out.println("Max WL: " + wlen.getLastNonzeroEntry());
-        System.out.println("Min WL: " + wlen.getFirstNonzeroEntry());
-        for (CharStats stat : lib.values()) {
-            System.out.println("\t" + stat.getCharValue() + "\t" + stat.getAllCorrelations());
-        }
+        StatsLibrary lib = new StatsLibrary();
 
         System.out.println("\nParse 1 paragraph of Lorem Ipsum, don't count punctuation");
-        lib.clear();
-        lib.parseLine("Lorem ipsum dolor sit amet, his option reformidans te, tation gubergren ei cum. Sea atomorum quaerendum ei, pri vivendo oportere ex. No debet scaevola ius.  Dolore soluta electram sit id, an nibh ridens sea. Errem noster intellegam eum ei, te eum audire bonorum veritus. Vix recusabo argumentum ne, alii oratio vix ne. Vel sensibus voluptaria ne.", "[\\s,.!?]+");
+        lib.parseLine("Lorem ipsum dolor sit aAmet, his option reformidans te, tation gubergren ei cum. Sea atomorum quaerendum ei, pri vivendo oportere ex. No debet scaevola ius.  Dolore soluta electram sit id, an nibh ridens sea. Errem noster intellegam eum ei, te eum audire bonorum veritus. Vix recusabo argumentum ne, alii oratio vix ne. Vel sensibus voluptaria ne.", "[\\s,.!?]+");
 
-        wlen = lib.getWordLengths();
+        OccurrenceList wlen = lib.getWordLengths();
         System.out.println("All Word Lengths: " + wlen);
         System.out.println("Average WL: " + wlen.getAverage());
         System.out.println("  Variance: " + wlen.getVariance());
