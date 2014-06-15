@@ -28,36 +28,52 @@ package garbler.translator;
  *
  * @author Rogue <Alice Q>
  */
-public class StatsLibrary {
+public class StatsLibrary implements Compactable<StatsLibrary, CharMap> {
+
+    // MAP OF ALL THE INDIVIDUAL CHARACTER STATS BEING TRACKED
+    private CharMap<CharStats> characterStats;
+
+    // THE LENGTH OF A WORD
+    private OccurrenceList wordLength;
+
+    public StatsLibrary() {
+        wordLength = new OccurrenceList();
+        characterStats = new CharMap<CharStats>() {
+            @Override
+            public void merge(CharStats oldValue, CharStats newValue) {
+                oldValue.addAll(newValue);
+            }
+        };
+    }
+
+    @Override
+    public void compact() {
+
+    }
+
+    @Override
+    public void addAll(StatsLibrary lib) {
+
+    }
+
+    @Override
+    public void merge(CharMap oldValue, CharMap newValue) {
+        oldValue.addAll(newValue);
+    }
 
     public static void main(String[] args) {
         java.util.Random rand = new java.util.Random();
 
-        CharStats lc = new CharStats('a');
-        CharStats uc = new CharStats('A');
+        CharStats stats = new CharStats('a');
 
-        System.out.println(lc);
-        System.out.println(uc);
+        System.out.println(stats.addWord("aABb"));
+        System.out.println("1:\t" + stats);
+        System.out.println("\t" + stats.getAllCorrelations());
+        System.out.println("\t" + stats.getDistancesFromEnd() + ", " + stats.getDistancesFromStart());
 
-        lc.setCaseSensitive(false);
-        uc.setCaseSensitive(true);
-
-        lc.addCharacterCorrelation('b', 1);
-        lc.addCharacterCorrelation('c', 3);
-        lc.addCharacterCorrelation('C', 2);
-        uc.addCharacterCorrelation('C', 2);
-        uc.addCharacterCorrelation('D', 3);
-
-        lc.addInstance();
-        lc.addInstance();
-        uc.addInstance();
-        uc.addInstance();
-
-        System.out.println(lc.getAllCorrelations());
-        System.out.println(uc.getAllCorrelations());
-
-        lc.addAll(uc);
-
-        System.out.println(lc.getAllCorrelations());
+        stats.addWord("aAbBc");
+        System.out.println("2:\t" + stats);
+        System.out.println("\t" + stats.getAllCorrelations());
+        System.out.println("\t" + stats.getDistancesFromEnd() + ", " + stats.getDistancesFromStart());
     }
 }

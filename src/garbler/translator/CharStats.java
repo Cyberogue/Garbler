@@ -108,14 +108,15 @@ public class CharStats {
     }
 
     // STAT TRACKING
-// - addInstance
-// - addPositionFromStart
-// - addPositionFromEnd
-// - addCharacterCorrelation
+    // - addOccurrence
+    // - addPositionFromStart
+    // - addPositionFromEnd
+    // - addCharacterCorrelation
+    // - addWord
     /**
      * Adds a single encounter to the internal counter
      */
-    public void addInstance() {
+    public void addOccurrence() {
         occurrences++;
     }
 
@@ -157,6 +158,87 @@ public class CharStats {
         }
 
         list.increment(distanceTo - 1);
+    }
+
+    /**
+     * Parses an individual word adding it to this character as necessary. In
+     * the case of multiple instances of the character in the same word, this
+     * method will only add the first instance of the character. If no instance
+     * of the character is found, this method simply returns the value -1
+     * without doing anything else.
+     *
+     * @param word The word to add to tracking
+     * @return the first index of the character within the word, or -1 if it
+     * doesn't exist
+     * @throws ArrayIndexOutOfBoundsException when fromIndex is outside the
+     * valid word range
+     */
+    public int addWord(String word) {
+        String wAdjusted = word;
+        char cAdjusted = name;
+
+        if (!correlations.isCaseSensitive()) {
+            wAdjusted = word.toLowerCase();
+            cAdjusted = Character.toLowerCase(name);
+        }
+
+        // ADJUSTING FOR CASE SENSITIVITY
+        int firstIndexOf = word.indexOf(cAdjusted);
+        int fromIndex = firstIndexOf;
+
+        // CHECK THAT IT'S VALID
+        if (fromIndex < 0) {
+            return -1;
+        }
+
+        // IT PASSED THE TEST SO ADD EVERYTHING
+        startDistances.increment(fromIndex);
+        System.out.println(word.length() + "\t" + fromIndex);
+        endDistances.increment(word.length() - fromIndex);
+        occurrences++;
+
+        // ADD EVERY CHARACTER AFTER THIS ONE
+        for (int i = fromIndex + 1; i < word.length(); i++) {
+            addCharacterCorrelation(word.charAt(i), i - fromIndex);
+        }
+
+        return firstIndexOf;
+    }
+
+    /**
+     * Parses an individual word adding it to this character as necessary. Note
+     * that this fails if the character at the specified index is not the
+     * definition character this instance is for.
+     *
+     * @param word The word to add to tracking
+     * @param fromIndex The index to count from
+     * @throws ArrayIndexOutOfBoundsException when fromIndex is outside the
+     * valid word range
+     */
+    public void addWord(String word, int fromIndex) {
+        // PRELIMINARY CHECKS AND ADJUSTING FOR CASE SENSITIVITY
+        char indexChar = word.charAt(fromIndex);
+
+        if (!correlations.isCaseSensitive()) {
+            indexChar = Character.toLowerCase(indexChar);
+        }
+        if (indexChar != name) {
+            return;
+        }
+        if (fromIndex < 0 || fromIndex >= word.length()) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+
+        // IT PASSED THE TEST SO ADD EVERYTHING
+        startDistances.increment(fromIndex);
+        System.out.println(word.length() + "\t" + fromIndex);
+        endDistances.increment(word.length() - fromIndex);
+        occurrences++;
+
+        // ADD EVERY CHARACTER AFTER THIS ONE
+        for (int i = fromIndex + 1; i < word.length(); i++) {
+            addCharacterCorrelation(word.charAt(i), i - fromIndex);
+        }
     }
 
     // STAT FETCHING
@@ -277,11 +359,13 @@ public class CharStats {
      * @param stats The second CharStats to inherit values from
      */
     public void addAll(CharStats stats) {
+        // SET SENSITIVITY
+        if (stats.correlations.isCaseSensitive()) {
+            this.correlations.setCaseSensitive(true);
+        }
+
         // MAP OF CORRELATIONS
         correlations.addAll(stats.correlations);
-        if (stats.isCaseSensitive()) {
-            correlations.setCaseSensitive(true);
-        }
 
         // DISTANCE FROM START AND END
         startDistances.addAll(stats.startDistances);
@@ -293,6 +377,6 @@ public class CharStats {
 
     @Override
     public String toString() {
-        return correlations.getAlphabet().toString() + " " + occurrences;
+        return name + "=" + correlations.getAlphabet().toString() + " " + occurrences;
     }
 }
