@@ -76,6 +76,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     // - clear
     // - resize
     // - get
+    // - getSafe
     // - getTotal
     // - size
     // - values
@@ -98,6 +99,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      * @param index the index
      * @param amount the amount to increment by
      * @return the number of times the event has happened
+     * @throws ArrayIndexOutOfBoundsException
      */
     public int increment(int index, int amount) {
         if (index < 0) {
@@ -113,6 +115,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      * Resets the count at a specified 0-indexed value
      *
      * @param index the index to reset
+     * @throws ArrayIndexOutOfBoundsException
      */
     public void reset(int index) {
         if (index < 0 || index >= map.length) {
@@ -152,6 +155,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      *
      * @param index the index of the value to retrieve
      * @return the number of times the event has happened
+     * @throws ArrayIndexOutOfBoundsException
      */
     public int get(int index) {
         if (index < 0 || index >= map.length) {

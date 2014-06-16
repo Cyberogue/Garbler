@@ -23,7 +23,10 @@
  */
 package garbler.translator;
 
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map.Entry;
 
 /**
  * Library for available characters and their respective statistics
@@ -69,7 +72,7 @@ public class StatsLibrary extends CharMap<CharStats> {
     public void parseWord(String word) {
         // CASE SENSITIVITY
         if (!isCaseSensitive()) {
-            word = word.toLowerCase(Locale.ROOT);
+            word = word.toLowerCase(java.util.Locale.ROOT);
         }
 
         // WORD STATISTICS
@@ -100,20 +103,31 @@ public class StatsLibrary extends CharMap<CharStats> {
      * @param regex The regular expressions string specifying where to break
      * apart the line of text
      */
-    public void parseLine(String line, String regex) {
+    public void parseLineRegex(String line, String regex) {
         for (String s : line.split(regex)) {
             parseWord(s);
         }
     }
 
     /**
+     * Parses an entire line adding it to the internal statistics after
+     * separating the sentence into words as specified by a regex string
+     *
+     * @param line a line of text
+     * @param delim a string of delimiters to use in addition to whitespace
+     */
+    public void parseLine(String line, String delim) {
+        parseLineRegex(line, "[" + delim.replace("]", "\\]").replace("[", "\\[").replace("%", "\\%") + "\\s]+");
+    }
+
+    /**
      * Parses an entire line adding it to the internal statistics, separating
      * the String into words on any whitespace
      *
-     * @param line A line of text
+     * @param line a line of text
      */
     public void parseLine(String line) {
-        parseLine(line, "\\s+");
+        parseLineRegex(line, "\\s+");
     }
 
     /**
@@ -128,27 +142,74 @@ public class StatsLibrary extends CharMap<CharStats> {
         return wordLength;
     }
 
-    public CharMap<Integer> getCorrelationsMatching(String s) {
-        CharMap<Integer> results = new CharMap<Integer>() {
-            @Override
-            public Integer merge(Integer oldValue, Integer newValue) {
-                return (oldValue + newValue);
-            }
-        };
+    /**
+     * Method to find the usage of specific characters following a certain
+     * sequence. Note that this does not guarantee that the character has been
+     * previously used following the sequence and is merely taken as a function
+     * of previous estimates. The only OccurrenceMaps returned are those which
+     * non-zero data at the index identified by the distance of each character
+     * from the end.
+     *
+     * @param charSequence the string of characters before the sequence
+     * @throws IllegalArgumentException when an invalid mode is used
+     * @return A character-sorted map of OccurrenceLists demonstrating the
+     * amount of influence each character has on the word based on the distance
+     * from the end
+     */
+    public OccurrenceMap getInfluenceMap(String charSequence) {
+        int length = charSequence.length();
+        int position;
 
-        return null;
+        OccurrenceMap results = new OccurrenceMap(isCaseSensitive());
+
+        // GO THROUGH EACH CHARACTER IN THE SEQQUENCES
+        for (int i = length - 1; i >= 0; i--) {
+            char charAt = charSequence.charAt(i);
+            position = length - i - 1;
+
+            // FETCH THE ASSOCIATED CHARSTAT
+            CharStats stats = get(charAt);
+            if (stats == null) {
+                continue;   // THERE ARE NO STATS SO IT DOESN'T MATTER
+            }
+
+            // GET ALL THE LISTS WITH IMPORTANT DATA
+            OccurrenceMap relevantLists = stats.getCorrelationsAtIndex(position);
+
+            // AND ADD THAT DATA TO THE RESULTS
+            for (Entry<Character, OccurrenceList> entry : relevantLists.entrySet()) {
+                char key = entry.getKey();
+                OccurrenceList value = entry.getValue();
+
+                // MAKE A NEW LIST IF NEEDED
+                OccurrenceList existingList = results.get(key);
+                if (existingList == null) {
+                    existingList = new OccurrenceList();
+                    results.put(key, existingList);
+                }
+                existingList.increment(position, value.get(position));
+            }
+        }
+
+        return results;
+    }
+
+    public CharMap<Float> getPMFFromMap(ArrayList<OccurrenceMap> list) {
+        boolean caseSensitivity = isCaseSensitive();
+
+        return results;
     }
 
     // OVERWRITTEN METHODS
-    // - merge
-    // - setCaseSensitive
+// - merge
+// - setCaseSensitive
     @Override
     public CharStats merge(CharStats oldValue, CharStats newValue) {
         return oldValue.addAll(newValue);
     }
 
     @Override
-    public void setCaseSensitive(boolean active) {
+    public final void setCaseSensitive(boolean active) {
         super.setCaseSensitive(active);
         for (CharStats stats : values()) {
             stats.setCaseSensitive(active);
@@ -165,14 +226,15 @@ public class StatsLibrary extends CharMap<CharStats> {
     // THIS WILL BE TAKEN OUT OF THE FINAL VERSION AND IS JUST FOR TESTING TEST CASES
     public static void main(String[] args) {
         StatsLibrary lib = new StatsLibrary();
+        lib.setCaseSensitive(false);
 
-        lib.parseWord("abcde");
-        lib.parseWord("aaaaa");
-        lib.parseWord("aabbb");
+        //lib.parseLine("Lorem ipsum dolor sit erres amet, vix error libris eu,", ",.");
+        lib.parseLine("abc abcd abcde aaaa aabbb");
 
-        System.out.println(lib);
-        System.out.println(lib.get('a').getCorrelationWith('c'));
-        System.out.println(lib.get('a').getAllCorrelations());
-        System.out.println(lib.get('a').getCorrelationsAtDistance(2));
+        //System.out.println(lib.get('r').getCorrelationWith('r'));
+        //System.out.println(lib.get('r').getAllCorrelations());
+        //System.out.println(lib.get('r').getCorrelationsAtIndex(1));
+        System.out.println("abc abcd abcde aaaa aabbb");
+        System.out.println(lib.getInfluenceMap("abc"));
     }
 }

@@ -44,7 +44,7 @@ public class CharStats {
     private OccurrenceList endDistances;
 
     // MAP OF ALL THE TIMES THIS CHARACTER OCCURS IN THE SAME WORD AS OTHER CHARACTERS, AND THEIR DISTANCES. NOTE THAT THIS ONLY TRACKS DISTANCE FROM
-    private CharMap<OccurrenceList> correlations;
+    private OccurrenceMap correlations;
 
     // CONSTRUCTORS
     /**
@@ -67,14 +67,7 @@ public class CharStats {
 
         startDistances = new OccurrenceList();
         endDistances = new OccurrenceList();
-
-        correlations = new CharMap<OccurrenceList>() {
-            // WHEN A MERGE IS REQUIRED SIMPLY ADD ALL THE NEW VALUES TO THE OLD VALUES
-            @Override
-            public OccurrenceList merge(OccurrenceList oldValue, OccurrenceList newValue) {
-                return oldValue.addAll(newValue);
-            }
-        };
+        correlations = new OccurrenceMap();
     }
 
     // GET-SETS
@@ -299,15 +292,9 @@ public class CharStats {
         return correlations;
     }
 
-    public CharMap<OccurrenceList> getCorrelationsAtDistance(int distance) {
+    public OccurrenceMap getCorrelationsAtIndex(int distance) {
         // NEW CHARMAP, JUST ADD OCCURRENCE LISTS
-        CharMap<OccurrenceList> valid = new CharMap<OccurrenceList>(correlations.isCaseSensitive()) {
-            @Override
-            public OccurrenceList merge(OccurrenceList oldValue, OccurrenceList newValue) {
-                oldValue.addAll(newValue);
-                return oldValue;
-            }
-        };
+        OccurrenceMap valid = new OccurrenceMap(correlations.isCaseSensitive());
 
         // PARSE THROUGH THEM ALL
         for (Entry<Character, OccurrenceList> entry : correlations.entrySet()) {
@@ -315,7 +302,7 @@ public class CharStats {
             Character key = entry.getKey();
 
             // IF IT CONTAINS DATA, FETCH IT
-            if (value != null && distance < value.size() && value.get(distance) > 0) {
+            if (value != null && value.getCount(distance) > 0) {
                 valid.put(key, value);
             }
         }
