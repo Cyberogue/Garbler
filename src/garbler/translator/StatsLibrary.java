@@ -194,8 +194,36 @@ public class StatsLibrary extends CharMap<CharStats> {
         return results;
     }
 
-    public CharMap<Float> getPMFFromMap(ArrayList<OccurrenceMap> list) {
+    /**
+     *
+     * @param influenceMap
+     * @return
+     */
+    public CharMap<Float> compactInfluenceMap(OccurrenceMap influenceMap) {
         boolean caseSensitivity = isCaseSensitive();
+        // RESULTANT MAP OF THE PERCENTAGE OF INFLUENCE ON EACH CHARACTER
+        CharMap<Float> results = new CharMap<Float>(caseSensitivity) {
+            @Override
+            public Float merge(Float oldValue, Float newValue) {
+                return oldValue + newValue;
+            }
+        };
+
+        // FIRST GET THE TOTAL OVERALL SUM
+        int totalSum = 0;
+        for (OccurrenceList list : influenceMap.values()) {
+            totalSum += list.getTotal();
+        }
+
+        // NOW TURN EACH OF THESE INTO A PERCENTAGE
+        for (Entry<Character, OccurrenceList> entry : influenceMap.entrySet()) {
+            OccurrenceList list = entry.getValue();
+            Character key = entry.getKey();
+
+            // THESE ARE ALL GOING TO BE UNIQUE
+            Float influence = (float) list.getSum() / totalSum;
+            results.put(key, influence);
+        }
 
         return results;
     }
@@ -235,6 +263,8 @@ public class StatsLibrary extends CharMap<CharStats> {
         //System.out.println(lib.get('r').getAllCorrelations());
         //System.out.println(lib.get('r').getCorrelationsAtIndex(1));
         System.out.println("abc abcd abcde aaaa aabbb");
-        System.out.println(lib.getInfluenceMap("abc"));
+        OccurrenceMap influenceMap = lib.getInfluenceMap("abc");
+        System.out.println("abc_ = " + influenceMap);
+        System.out.println("abc_ = " + lib.compactInfluenceMap(influenceMap));
     }
 }

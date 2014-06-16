@@ -78,6 +78,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     // - get
     // - getSafe
     // - getTotal
+    // - getSum
     // - size
     // - values
     // - addAll (2)
@@ -184,6 +185,19 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      */
     public int getTotal() {
         return total;
+    }
+
+    /**
+     * Method to retrieve the net sum of every entry in the list
+     *
+     * @return the sum of all the entries
+     */
+    public int getSum() {
+        int sum = 0;
+        for (int i : map) {
+            sum += i;
+        }
+        return sum;
     }
 
     /**
