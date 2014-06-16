@@ -270,7 +270,7 @@ public class StatsLibrary extends CharMap<CharStats> {
         System.out.println("Lorem ipsum dolor sit amet, vix error libris eu,");
         System.out.println("err = " + lib.compactInfluenceMap(lib.getInfluenceMap("err")));
         System.out.println("lor = " + lib.compactInfluenceMap(lib.getInfluenceMap("lor")));
-        System.out.println("l = " + lib.compactInfluenceMap(lib.getInfluenceMap("err")));
+        System.out.println("l = " + lib.compactInfluenceMap(lib.getInfluenceMap("l")));
 
         lib.clear();
         System.out.println("-------");
