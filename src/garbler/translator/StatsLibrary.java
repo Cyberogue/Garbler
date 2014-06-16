@@ -209,20 +209,30 @@ public class StatsLibrary extends CharMap<CharStats> {
             }
         };
 
-        // FIRST GET THE TOTAL OVERALL SUM
-        int totalSum = 0;
-        for (OccurrenceList list : influenceMap.values()) {
-            totalSum += list.getTotal();
-        }
-
-        // NOW TURN EACH OF THESE INTO A PERCENTAGE
+        // FIRST GET EACH RELATIVE INFLUENCE
+        float totalSum = 0.0f;
         for (Entry<Character, OccurrenceList> entry : influenceMap.entrySet()) {
             OccurrenceList list = entry.getValue();
             Character key = entry.getKey();
 
+            // FIRST GET THE DENOMINATOR
+            int size = list.size();
+            int denominator = (size * (size + 1)) / 2;   // TRIANGULAR NUMBER
+
+            // THEN GET THE LOCAL INFLUENCE
+            float influence = list.getCount(size - 1);
+            for (int i = size - 2; i >= 0; i--) {
+                influence = (influence + list.getCount(i)) / 2;
+            }
+
             // THESE ARE ALL GOING TO BE UNIQUE
-            Float influence = (float) list.getSum() / totalSum;
             results.put(key, influence);
+            totalSum += influence;
+        }
+
+        // THEN TURN ALL THE RELATIVE PERCENTS INTO ABSOLUTES
+        for (Entry<Character, Float> entry : results.entrySet()) {
+            results.put(entry.getKey(), entry.getValue() / totalSum);
         }
 
         return results;
@@ -256,12 +266,16 @@ public class StatsLibrary extends CharMap<CharStats> {
         StatsLibrary lib = new StatsLibrary();
         lib.setCaseSensitive(false);
 
-        //lib.parseLine("Lorem ipsum dolor sit erres amet, vix error libris eu,", ",.");
-        lib.parseLine("abc abcd abcde aaaa aabbb");
+        lib.parseLine("Lorem ipsum dolor sit amet, vix error libris eu,", ",.");
+        System.out.println("Lorem ipsum dolor sit amet, vix error libris eu,");
+        System.out.println("err = " + lib.compactInfluenceMap(lib.getInfluenceMap("err")));
+        System.out.println("lor = " + lib.compactInfluenceMap(lib.getInfluenceMap("lor")));
+        System.out.println("l = " + lib.compactInfluenceMap(lib.getInfluenceMap("err")));
 
-        //System.out.println(lib.get('r').getCorrelationWith('r'));
-        //System.out.println(lib.get('r').getAllCorrelations());
-        //System.out.println(lib.get('r').getCorrelationsAtIndex(1));
+        lib.clear();
+        System.out.println("-------");
+
+        lib.parseLine("abc abcd abcde aaaa aabbb");
         System.out.println("abc abcd abcde aaaa aabbb");
         OccurrenceMap influenceMap = lib.getInfluenceMap("abc");
         System.out.println("abc_ = " + influenceMap);
