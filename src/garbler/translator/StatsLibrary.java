@@ -23,8 +23,6 @@
  */
 package garbler.translator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
@@ -195,11 +193,17 @@ public class StatsLibrary extends CharMap<CharStats> {
     }
 
     /**
+     * Method which compacts an influence map into percentages for each
+     * character
      *
-     * @param influenceMap
-     * @return
+     * @param influenceMap the influence map to compact
+     * @param decay the amount of decay that influence has the further away each
+     * character is from the end of the word. A value above 0.5 favors newer
+     * entries while a value below 0.5 favors older entries.
+     * @return a character-sorted map of probabilities for each character with a
+     * net sum of 1.0f
      */
-    public CharMap<Float> compactInfluenceMap(OccurrenceMap influenceMap) {
+    public CharMap<Float> compactInfluenceMap(OccurrenceMap influenceMap, float decay) {
         boolean caseSensitivity = isCaseSensitive();
         // RESULTANT MAP OF THE PERCENTAGE OF INFLUENCE ON EACH CHARACTER
         CharMap<Float> results = new CharMap<Float>(caseSensitivity) {
@@ -217,18 +221,86 @@ public class StatsLibrary extends CharMap<CharStats> {
 
             // FIRST GET THE DENOMINATOR
             int size = list.size();
-            int denominator = (size * (size + 1)) / 2;   // TRIANGULAR NUMBER
 
             // THEN GET THE LOCAL INFLUENCE
             float influence = list.getCount(size - 1);
+            float decayInv = 1 - decay;
             for (int i = size - 2; i >= 0; i--) {
-                influence = (influence + list.getCount(i)) / 2;
+                influence = influence * decayInv + list.getCount(i) * decay;
             }
 
             // THESE ARE ALL GOING TO BE UNIQUE
             results.put(key, influence);
             totalSum += influence;
         }
+
+        // THEN TURN ALL THE RELATIVE PERCENTS INTO ABSOLUTES
+        for (Entry<Character, Float> entry : results.entrySet()) {
+            results.put(entry.getKey(), entry.getValue() / totalSum);
+        }
+
+        return results;
+    }
+
+    /**
+     * Method which compacts an influence map into percentages for each
+     * character
+     *
+     * @param influenceMap the influence map to compact
+     * @param threshold the raw percentage threshold to cutoff. Anything below
+     * this will not be counted towards the total.
+     * @param decay the amount of decay that influence has the further away each
+     * character is from the end of the word. A value above 0.5 favors newer
+     * entries while a value below 0.5 favors older entries.
+     *
+     * @return a character-sorted map of probabilities for each character with a
+     * net sum of 1.0f
+     */
+    public CharMap<Float> compactInfluenceMap(OccurrenceMap influenceMap, float decay, float threshold) {
+        boolean caseSensitivity = isCaseSensitive();
+        // RESULTANT MAP OF THE PERCENTAGE OF INFLUENCE ON EACH CHARACTER
+        CharMap<Float> results = new CharMap<Float>(caseSensitivity) {
+            @Override
+            public Float merge(Float oldValue, Float newValue) {
+                return oldValue + newValue;
+            }
+        };
+
+        // FIRST GET EACH RELATIVE INFLUENCE
+        float totalSum = 0.0f;
+        for (Entry<Character, OccurrenceList> entry : influenceMap.entrySet()) {
+            OccurrenceList list = entry.getValue();
+            Character key = entry.getKey();
+
+            // FIRST GET THE DENOMINATOR
+            int size = list.size();
+
+            // THEN GET THE LOCAL INFLUENCE
+            float influence = list.getCount(size - 1);
+            float decayInv = 1 - decay;
+            for (int i = size - 2; i >= 0; i--) {
+                influence = influence * decayInv + list.getCount(i) * decay;
+            }
+
+            // THESE ARE ALL GOING TO BE UNIQUE
+            results.put(key, influence);
+            totalSum += influence;
+        }
+
+        // REMOVE THE ENTRIES THAT DON'T MAKE THE CUROFF
+        LinkedList<Character> trashbin = new LinkedList();
+
+        float newSum = totalSum;
+        for (Entry<Character, Float> entry : results.entrySet()) {
+            if (entry.getValue() / totalSum < threshold) {
+                trashbin.add(entry.getKey());
+                newSum -= entry.getValue();
+            }
+        }
+        for (Character c : trashbin) {
+            results.remove(c);
+        }
+        totalSum = newSum;
 
         // THEN TURN ALL THE RELATIVE PERCENTS INTO ABSOLUTES
         for (Entry<Character, Float> entry : results.entrySet()) {
@@ -268,9 +340,18 @@ public class StatsLibrary extends CharMap<CharStats> {
 
         lib.parseLine("Lorem ipsum dolor sit amet, vix error libris eu,", ",.");
         System.out.println("Lorem ipsum dolor sit amet, vix error libris eu,");
-        System.out.println("err = " + lib.compactInfluenceMap(lib.getInfluenceMap("err")));
-        System.out.println("lor = " + lib.compactInfluenceMap(lib.getInfluenceMap("lor")));
-        System.out.println("l = " + lib.compactInfluenceMap(lib.getInfluenceMap("l")));
+        System.out.println("err = " + lib.compactInfluenceMap(lib.getInfluenceMap("err"), 0.75f));
+        System.out.println("lor = " + lib.compactInfluenceMap(lib.getInfluenceMap("lor"), 0.75f));
+        System.out.println("l = " + lib.compactInfluenceMap(lib.getInfluenceMap("l"), 0.5f));
+
+        lib.clear();
+        System.out.println("-------");
+
+        lib.parseLine("Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people's hats off - then, I account it high time to get to sea as soon as I can.", ",.");
+        System.out.println("Whenever I find myself growing grim... (Moby Dick quote)");
+        System.out.println("sou [threshold 0.05] = " + lib.compactInfluenceMap(lib.getInfluenceMap("sou"), 0.75f, 0.01f));
+        System.out.println("env [threshold 0.05] = " + lib.compactInfluenceMap(lib.getInfluenceMap("env"), 0.75f, 0.01f));
+        System.out.println("gr = " + lib.compactInfluenceMap(lib.getInfluenceMap("gr"), 0.75f));
 
         lib.clear();
         System.out.println("-------");
@@ -279,6 +360,7 @@ public class StatsLibrary extends CharMap<CharStats> {
         System.out.println("abc abcd abcde aaaa aabbb");
         OccurrenceMap influenceMap = lib.getInfluenceMap("abc");
         System.out.println("abc_ = " + influenceMap);
-        System.out.println("abc_ = " + lib.compactInfluenceMap(influenceMap));
+        System.out.println("abc_ [decay 0.5] = " + lib.compactInfluenceMap(influenceMap, 0.5f));
+        System.out.println("abc_ [decay 0.75] = " + lib.compactInfluenceMap(influenceMap, 0.75f));
     }
 }

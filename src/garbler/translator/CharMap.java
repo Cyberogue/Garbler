@@ -24,7 +24,6 @@
 package garbler.translator;
 
 import java.util.Map.Entry;
-import java.util.ArrayList;
 
 /**
  * Class which serves as a character-keyed extension of TreeMap
@@ -111,7 +110,7 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
     @Override
     public final void compact() {
         // FIRST FIND THE UPPERCASE MEMBERS
-        ArrayList<Entry> upperSet = new ArrayList(size() / 2);  // ASSUME HALF THE ENTRIES ARE UPPERCASE INITIALLY
+        java.util.LinkedList<Entry> upperSet = new java.util.LinkedList();
 
         for (Entry<Character, E> entry : entrySet()) {
             if (Character.isUpperCase(entry.getKey())) {
