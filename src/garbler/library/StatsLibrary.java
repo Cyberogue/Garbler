@@ -165,7 +165,7 @@ public class StatsLibrary extends CharMap<CharStats> {
      * distance from the end as an integer. If a character has no influence it
      * is not included in the return value.
      */
-    public OccurrenceMap generateInfluenceMap(String charSequence) {
+    protected OccurrenceMap generateInfluenceMap(String charSequence) {
         int length = charSequence.length();
         int position;
 
@@ -211,19 +211,17 @@ public class StatsLibrary extends CharMap<CharStats> {
      * @return an OccurrenceMap of influence if one was found in the cache,
      * otherwise null if it wasn't
      */
-    public OccurrenceMap getInfluenceMapFromCache(String charSequence) {
+    protected OccurrenceMap getInfluenceMapFromCache(String charSequence) {
         // FIRST SEE IF THE SNIPPET ALREADY EXISTS IN THE CACHE
         OccurrenceMap cached = primaryCache.get(charSequence);
         if (cached != null) {
             // IF IT EXISTS JUST RETURN IT
-            System.out.println(charSequence + " found in primary cache");
             return cached;
         }
         // IT'S NOT IN THE PRIMARY SO GET IT FROM THE SECONDARY
         for (Entry<String, OccurrenceMap> entry : secondaryCache) {
             // IT WAS FOUND IN THE SECONDARY SO MOVE THIS TO THE PRIMARY AND RETURN IT
             if (entry.getKey().equals(charSequence)) {
-                System.out.println(charSequence + " found in secondary cache");
                 primaryCache.put(entry.getKey(), entry.getValue());
                 return entry.getValue();
             }
@@ -242,7 +240,6 @@ public class StatsLibrary extends CharMap<CharStats> {
         }
 
         // IF IT WASN'T, GENERATE A NEW ONE
-        System.out.println(charSequence + " generated");
         OccurrenceMap generated = generateInfluenceMap(charSequence);
 
         // ADD IT TO THE SECONDARY CACHE, REMOVING THE OLDEST ENTRY IF FULL
@@ -254,123 +251,9 @@ public class StatsLibrary extends CharMap<CharStats> {
         // AND RETURN IT
         return generated;
     }
-
-    /**
-     * Method which compacts an influence map into percentages for each
-     * character
-     *
-     * @param influenceMap the influence map to compact
-     * @param decay the amount of decay that influence has the further away each
-     * character is from the end of the word. A value above 0.5 favors newer
-     * entries while a value below 0.5 favors older entries.
-     * @return a character-sorted map of probabilities for each character with a
-     * net sum of 1.0f
-     */
-    public CharMap<Float> compactInfluenceMap(OccurrenceMap influenceMap, float decay) {
-        boolean caseSensitivity = isCaseSensitive();
-        // RESULTANT MAP OF THE PERCENTAGE OF INFLUENCE ON EACH CHARACTER
-        CharMap<Float> results = new CharMap<Float>(caseSensitivity) {
-            @Override
-            public Float merge(Float oldValue, Float newValue) {
-                return oldValue + newValue;
-            }
-        };
-
-        // FIRST GET EACH RELATIVE INFLUENCE
-        float totalSum = 0.0f;
-        for (Entry<Character, OccurrenceList> entry : influenceMap.entrySet()) {
-            OccurrenceList list = entry.getValue();
-            Character key = entry.getKey();
-
-            // FIRST GET THE DENOMINATOR
-            int size = list.size();
-
-            // THEN GET THE LOCAL INFLUENCE
-            float influence = list.getCount(size - 1);
-            float decayInv = 1 - decay;
-            for (int i = size - 2; i >= 0; i--) {
-                influence = influence * decayInv + list.getCount(i) * decay;
-            }
-
-            // THESE ARE ALL GOING TO BE UNIQUE
-            results.put(key, influence);
-            totalSum += influence;
-        }
-
-        // THEN TURN ALL THE RELATIVE PERCENTS INTO ABSOLUTES
-        for (Entry<Character, Float> entry : results.entrySet()) {
-            results.put(entry.getKey(), entry.getValue() / totalSum);
-        }
-
-        return results;
-    }
-
-    /**
-     * Method which compacts an influence map into percentages for each
-     * character
-     *
-     * @param influenceMap the influence map to compact
-     * @param threshold the raw percentage threshold to cutoff. Anything below
-     * this will not be counted towards the total.
-     * @param decay the amount of decay that influence has the further away each
-     * character is from the end of the word. A value above 0.5 favors newer
-     * entries while a value below 0.5 favors older entries.
-     *
-     * @return a character-sorted map of probabilities for each character with a
-     * net sum of 1.0f
-     */
-    public CharMap<Float> compactInfluenceMap(OccurrenceMap influenceMap, float decay, float threshold) {
-        boolean caseSensitivity = isCaseSensitive();
-        // RESULTANT MAP OF THE PERCENTAGE OF INFLUENCE ON EACH CHARACTER
-        CharMap<Float> results = new CharMap<Float>(caseSensitivity) {
-            @Override
-            public Float merge(Float oldValue, Float newValue) {
-                return oldValue + newValue;
-            }
-        };
-
-        // FIRST GET EACH RELATIVE INFLUENCE
-        float totalSum = 0.0f;
-        for (Entry<Character, OccurrenceList> entry : influenceMap.entrySet()) {
-            OccurrenceList list = entry.getValue();
-            Character key = entry.getKey();
-
-            // FIRST GET THE DENOMINATOR
-            int size = list.size();
-
-            // THEN GET THE LOCAL INFLUENCE
-            float influence = list.getCount(size - 1);
-            float decayInv = 1 - decay;
-            for (int i = size - 2; i >= 0; i--) {
-                influence = influence * decayInv + list.getCount(i) * decay;
-            }
-
-            // THESE ARE ALL GOING TO BE UNIQUE
-            results.put(key, influence);
-            totalSum += influence;
-        }
-
-        // REMOVE THE ENTRIES THAT DON'T MAKE THE CUROFF
-        LinkedList<Character> trashbin = new LinkedList();
-
-        float newSum = totalSum;
-        for (Entry<Character, Float> entry : results.entrySet()) {
-            if (entry.getValue() / totalSum < threshold) {
-                trashbin.add(entry.getKey());
-                newSum -= entry.getValue();
-            }
-        }
-        for (Character c : trashbin) {
-            results.remove(c);
-        }
-        totalSum = newSum;
-
-        // THEN TURN ALL THE RELATIVE PERCENTS INTO ABSOLUTES
-        for (Entry<Character, Float> entry : results.entrySet()) {
-            results.put(entry.getKey(), entry.getValue() / totalSum);
-        }
-
-        return results;
+    
+    public java.util.Set<String> getPrimaryCacheKeys(){
+        return primaryCache.keySet();
     }
 
     // OVERWRITTEN METHODS
