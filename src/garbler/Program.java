@@ -40,6 +40,28 @@ public class Program {
         WordBuilder builder = new WordBuilder(lib);
 
         lib.parseLine("abcd abcd bccx", ",.");
-        System.out.println(lib.getInfluenceMap("abc"));
+        long start = System.currentTimeMillis();
+        for (char c = 'a'; c <= 'z'; c++) {
+            lib.getInfluenceMapCached("abcabcabcabcab" + c);
+        }
+        System.out.println(System.currentTimeMillis() - start);
+
+        start = System.currentTimeMillis();
+        for (char c = 'a'; c <= 'z'; c++) {
+            lib.getInfluenceMapCached("abcabcabcabcab" + c);
+        }
+        System.out.println(System.currentTimeMillis() - start);
+
+        start = System.currentTimeMillis();
+        for (char c = 'a'; c <= 'z'; c++) {
+            lib.getInfluenceMapCached("abcabcabcabcab" + c);
+        }
+        System.out.println(System.currentTimeMillis() - start);
+
+        start = System.currentTimeMillis();
+        for (char c = 'a'; c <= 'z'; c++) {
+            lib.getInfluenceMapCached("abcabcabcabcab" + c);
+        }
+        System.out.println(System.currentTimeMillis() - start);
     }
 }
