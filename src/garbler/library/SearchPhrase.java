@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package garbler.translator;
+package garbler.library;
 
 /**
  * Enumeration of all the valid terms and rules used when searching

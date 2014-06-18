@@ -21,9 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package garbler.translator;
+package garbler.library;
 
 import java.util.LinkedList;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 /**
@@ -35,6 +36,9 @@ public class StatsLibrary extends CharMap<CharStats> {
 
     // THE LENGTH OF A WORD
     private OccurrenceList wordLength;
+
+    // TREE SERVING AS A CACHE OF COMMONLY USED SHORT SNIPPETS
+    private TreeMap<String, OccurrenceMap> snippets;
 
     /**
      * Default constructor for a case sensitive StatsLibrary
@@ -52,10 +56,10 @@ public class StatsLibrary extends CharMap<CharStats> {
      */
     public StatsLibrary(boolean caseSensitive) {
         wordLength = new OccurrenceList();
+        snippets = new TreeMap();
         this.setCaseSensitive(caseSensitive);
     }
-
-    // STATISTICS
+     // STATISTICS
     // - parseWord
     // - parseLine (2)
     // - getWordLengths
@@ -67,6 +71,7 @@ public class StatsLibrary extends CharMap<CharStats> {
      *
      * @param word
      */
+
     public void parseWord(String word) {
         // CASE SENSITIVITY
         if (!isCaseSensitive()) {
@@ -330,37 +335,5 @@ public class StatsLibrary extends CharMap<CharStats> {
     public void clear() {
         super.clear();
         wordLength.clear();
-    }
-
-    // MAIN TEST METHOD
-    // THIS WILL BE TAKEN OUT OF THE FINAL VERSION AND IS JUST FOR TESTING TEST CASES
-    public static void main(String[] args) {
-        StatsLibrary lib = new StatsLibrary();
-        lib.setCaseSensitive(false);
-
-        lib.parseLine("Lorem ipsum dolor sit amet, vix error libris eu,", ",.");
-        System.out.println("Lorem ipsum dolor sit amet, vix error libris eu,");
-        System.out.println("err = " + lib.compactInfluenceMap(lib.getInfluenceMap("err"), 0.75f));
-        System.out.println("lor = " + lib.compactInfluenceMap(lib.getInfluenceMap("lor"), 0.75f));
-        System.out.println("l = " + lib.compactInfluenceMap(lib.getInfluenceMap("l"), 0.5f));
-
-        lib.clear();
-        System.out.println("-------");
-
-        lib.parseLine("Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people's hats off - then, I account it high time to get to sea as soon as I can.", ",.");
-        System.out.println("Whenever I find myself growing grim... (Moby Dick quote)");
-        System.out.println("sou [threshold 0.05] = " + lib.compactInfluenceMap(lib.getInfluenceMap("sou"), 0.75f, 0.01f));
-        System.out.println("env [threshold 0.05] = " + lib.compactInfluenceMap(lib.getInfluenceMap("env"), 0.75f, 0.01f));
-        System.out.println("gr = " + lib.compactInfluenceMap(lib.getInfluenceMap("gr"), 0.75f));
-
-        lib.clear();
-        System.out.println("-------");
-
-        lib.parseLine("abc abcd abcde aaaa aabbb");
-        System.out.println("abc abcd abcde aaaa aabbb");
-        OccurrenceMap influenceMap = lib.getInfluenceMap("abc");
-        System.out.println("abc_ = " + influenceMap);
-        System.out.println("abc_ [decay 0.5] = " + lib.compactInfluenceMap(influenceMap, 0.5f));
-        System.out.println("abc_ [decay 0.75] = " + lib.compactInfluenceMap(influenceMap, 0.75f));
     }
 }

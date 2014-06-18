@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package garbler.translator;
+package garbler.library;
 
 /**
  * List which tracks the number of occurrences of an event at different times
