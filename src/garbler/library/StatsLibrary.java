@@ -23,8 +23,6 @@
  */
 package garbler.library;
 
-import java.util.LinkedList;
-import java.util.TreeMap;
 import java.util.Map.Entry;
 
 /**
@@ -36,13 +34,6 @@ public class StatsLibrary extends CharMap<CharStats> {
 
     // THE LENGTH OF A WORD
     private OccurrenceList wordLength;
-
-    // SORTED TREE SERVING AS A CACHE OF COMMONLY USED SHORT SNIPPETS
-    private TreeMap<String, OccurrenceMap> primaryCache;
-
-    // FIFO SECONDARY CACHE TO THE TREE INTENDED FOR HOLDING SINGLE-USE SNIPPETS UNTIL THEY EXPIRE OR ARE MOVED TO THE PRIMARY TrEE
-    private LinkedList<Entry<String, OccurrenceMap>> secondaryCache;
-    private final static int SECONDARY_CACHE_SIZE = 32; // THE MAX AMOUNT OF ENTRIES IN THE CACHE
 
     /**
      * Default constructor for a case sensitive StatsLibrary
@@ -60,8 +51,6 @@ public class StatsLibrary extends CharMap<CharStats> {
      */
     public StatsLibrary(boolean caseSensitive) {
         wordLength = new OccurrenceList();
-        primaryCache = new TreeMap();
-        secondaryCache = new LinkedList();
         this.setCaseSensitive(caseSensitive);
     }
     // STATISTICS
@@ -165,7 +154,7 @@ public class StatsLibrary extends CharMap<CharStats> {
      * distance from the end as an integer. If a character has no influence it
      * is not included in the return value.
      */
-    protected OccurrenceMap generateInfluenceMap(String charSequence) {
+    public OccurrenceMap generateInfluenceMap(String charSequence) {
         int length = charSequence.length();
         int position;
 
@@ -203,62 +192,9 @@ public class StatsLibrary extends CharMap<CharStats> {
         return results;
     }
 
-    /**
-     * Searches the cache to see if an influence map already exists in the
-     * cache, reorganizing the two caches if required
-     *
-     * @param charSequence a sequence of characters to get the map for
-     * @return an OccurrenceMap of influence if one was found in the cache,
-     * otherwise null if it wasn't
-     */
-    protected OccurrenceMap getInfluenceMapFromCache(String charSequence) {
-        // FIRST SEE IF THE SNIPPET ALREADY EXISTS IN THE CACHE
-        OccurrenceMap cached = primaryCache.get(charSequence);
-        if (cached != null) {
-            // IF IT EXISTS JUST RETURN IT
-            return cached;
-        }
-        // IT'S NOT IN THE PRIMARY SO GET IT FROM THE SECONDARY
-        for (Entry<String, OccurrenceMap> entry : secondaryCache) {
-            // IT WAS FOUND IN THE SECONDARY SO MOVE THIS TO THE PRIMARY AND RETURN IT
-            if (entry.getKey().equals(charSequence)) {
-                primaryCache.put(entry.getKey(), entry.getValue());
-                return entry.getValue();
-            }
-        }
-        // IT'S NOT IN THE SECONDARY EITHER SO RETURN NULL
-        return null;
-    }
-
-    public OccurrenceMap getInfluenceMapCached(String charSequence) {
-        // SEE IF THE MAP IS IN ONE OF THE CACHES
-        OccurrenceMap cached = getInfluenceMapFromCache(charSequence);
-
-        // IF IT WAS, RETURN IT
-        if (cached != null) {
-            return cached;
-        }
-
-        // IF IT WASN'T, GENERATE A NEW ONE
-        OccurrenceMap generated = generateInfluenceMap(charSequence);
-
-        // ADD IT TO THE SECONDARY CACHE, REMOVING THE OLDEST ENTRY IF FULL
-        secondaryCache.push(new java.util.AbstractMap.SimpleImmutableEntry(charSequence, generated));
-        if (secondaryCache.size() > SECONDARY_CACHE_SIZE) {
-            secondaryCache.pop();
-        }
-
-        // AND RETURN IT
-        return generated;
-    }
-    
-    public java.util.Set<String> getPrimaryCacheKeys(){
-        return primaryCache.keySet();
-    }
-
     // OVERWRITTEN METHODS
-// - merge
-// - setCaseSensitive
+    // - merge
+    // - setCaseSensitive
     @Override
     public CharStats merge(CharStats oldValue, CharStats newValue) {
         return oldValue.addAll(newValue);

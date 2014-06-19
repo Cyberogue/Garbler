@@ -41,30 +41,8 @@ public class Program {
 
         lib.parseLine("Lorem ipsum dolor sit amet, malorum habemus propriae ex nec. Vis ex nulla aeque voluptatum, qui dico saepe consetetur ne. Doming electram eam ea. Ex sea deserunt voluptatum. Alterum probatus erroribus ei nam, id duo dico efficiantur neglegentur, natum luptatum no sit. Phaedrum definitionem pro ne. Est id fuisset commune omittantur, ullum munere pro ne. Vim offendit molestiae id, te populo prodesset incorrupte vix. Ludus conclusionemque id quo, integre reprehendunt nam in. Nihil inermis dolorem ei vel, id duo noster aliquam bonorum. Cu solum audire mei.", ",.");
 
-        System.out.println(lib.getInfluenceMapCached("mal"));
-
-        long start = System.currentTimeMillis();
-        for (char c = 0; c < 10000; c++) {
-            lib.getInfluenceMapCached("abcdefghijklmnopqrstuvwxyz" + c);
-        }
-        System.out.println(System.currentTimeMillis() - start);
-
-        start = System.currentTimeMillis();
-        for (char c = 0; c < 10000; c++) {
-            lib.getInfluenceMapCached("abcdefghijklmnopqrstuvwxyz" + c);
-        }
-        System.out.println(System.currentTimeMillis() - start);
-
-        start = System.currentTimeMillis();
-        for (char c = 0; c < 10000; c++) {
-            lib.getInfluenceMapCached("abcdefghijklmnopqrstuvwxyz" + c);
-        }
-        System.out.println(System.currentTimeMillis() - start);
-
-        start = System.currentTimeMillis();
-        for (char c = 0; c < 10000; c++) {
-            lib.getInfluenceMapCached("abcdefghijklmnopqrstuvwxyz" + c);
-        }
-        System.out.println(System.currentTimeMillis() - start);
+        System.out.println(lib.generateInfluenceMap("mal"));
+        System.out.println(lib.generateInfluenceMap("lib"));
+        System.out.println(lib.generateInfluenceMap("prae"));
     }
 }
