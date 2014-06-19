@@ -51,13 +51,18 @@ public class Program {
             System.out.println("REQUEST: " + req);
             lib.parseLine(testSeed, ",.");
 
-            System.out.println("\tDefault: " + builder.generateAppendRecommendations(req));
+            CharMap result = builder.generateAppendRecommendations(req);
+            System.out.println("\tRaw: " + result);
 
             builder.setCloseCharacterPreferenceFactor(0.75f);
-            System.out.println("\tWeight Preference: " + builder.generateAppendRecommendations(req));
+            result = builder.generateAppendRecommendations(req);
+            BasicDecimalCharMap.trimAndRebalanceMap(result, 0.07f);
+            System.out.println("\tMod 1: " + result);
 
             builder.setSameCharacterAdjustFactor(0.5f);
-            System.out.println("\tSame-character Adjust: " + builder.generateAppendRecommendations(req));
+            result = builder.generateAppendRecommendations(req);
+            BasicDecimalCharMap.trimAndRebalanceMap(result, 0.07f);
+            System.out.println("\tMod 2: " + result);
 
             System.out.println("\tSecondary Cache: " + builder.getSecondaryCacheContents() + "\tPrimary Cache: " + builder.getPrimaryCacheContents());
             System.out.println();

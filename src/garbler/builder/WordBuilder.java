@@ -384,27 +384,8 @@ public class WordBuilder {
         }
 
         // THEN REBALANCE THME
-        equalizeInfluenceMap(results);
+        BasicDecimalCharMap.rebalanceMap(results);
 
         return results;
-    }
-    // STATIC METHODS
-    // -equalizeInfluenceMap
-
-    /**
-     * Method to equalize or re-balance an influence map so that the sum of its
-     * values equals 1.0f while still keeping in proportion to each other.
-     *
-     * @param map a map of decimal point values to equalize
-     */
-    public static void equalizeInfluenceMap(CharMap<Float> map) {
-        float sum = 0;
-        for (Float f : map.values()) {
-            sum += f;
-        }
-        for (Entry<Character, Float> entry : map.entrySet()) {
-            map.put(entry.getKey(), entry.getValue() / sum);
-        }
-
     }
 }
