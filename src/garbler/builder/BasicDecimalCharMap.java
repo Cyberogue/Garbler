@@ -43,6 +43,19 @@ public class BasicDecimalCharMap extends CharMap<Float> {
         super(caseSensitivity);
     }
 
+    /**
+     * Method to get the sum of all the internally held values
+     *
+     * @return a float representation of the sum of all internal values
+     */
+    public Float getSum() {
+        float sum = 0.0f;
+        for (float f : values()) {
+            sum += f;
+        }
+        return sum;
+    }
+
     @Override
     public Float mergeValues(Float oldValue, Float newValue) {
         return oldValue + newValue;

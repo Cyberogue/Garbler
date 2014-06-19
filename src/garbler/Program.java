@@ -23,8 +23,8 @@
  */
 package garbler;
 
-import garbler.library.StatsLibrary;
-import garbler.builder.WordBuilder;
+import garbler.library.*;
+import garbler.builder.*;
 
 /**
  * Main test class simply used for running individual test cases
@@ -39,10 +39,28 @@ public class Program {
         StatsLibrary lib = new StatsLibrary(false);
         WordBuilder builder = new WordBuilder(lib);
 
-        lib.parseLine("Lorem ipsum dolor sit amet, malorum habemus propriae ex nec. Vis ex nulla aeque voluptatum, qui dico saepe consetetur ne. Doming electram eam ea. Ex sea deserunt voluptatum. Alterum probatus erroribus ei nam, id duo dico efficiantur neglegentur, natum luptatum no sit. Phaedrum definitionem pro ne. Est id fuisset commune omittantur, ullum munere pro ne. Vim offendit molestiae id, te populo prodesset incorrupte vix. Ludus conclusionemque id quo, integre reprehendunt nam in. Nihil inermis dolorem ei vel, id duo noster aliquam bonorum. Cu solum audire mei.", ",.");
+        String testSeed = "orem ipsum dolor sit amet, te sit erat adipisci necessitatibus. Illud exerci animal ne per. Sea cibo scribentur eu. Ea ceteros insolens instructior cum. "
+                + "Vix sint dicit fabulas ut, ullum nostrud nec no. Eu debitis omittam per, quo labores offendit placerat at. Dicta solet dissentiet eu vel.";
+        String[] testRequests = {"val", "abc", "mal", "malosu"};
 
-        System.out.println(lib.generateInfluenceMap("mal"));
-        System.out.println(lib.generateInfluenceMap("lib"));
-        System.out.println(lib.generateInfluenceMap("prae"));
+        System.out.println("SEED: " + testSeed);
+
+        for (String req : testRequests) {
+            builder.reset();
+
+            System.out.println("REQUEST: " + req);
+            lib.parseLine(testSeed, ",.");
+
+            System.out.println("\tDefault: " + builder.generateAppendRecommendations(req));
+
+            builder.setCloseCharacterPreferenceFactor(0.75f);
+            System.out.println("\tWeight Preference: " + builder.generateAppendRecommendations(req));
+
+            builder.setSameCharacterAdjustFactor(0.5f);
+            System.out.println("\tSame-character Adjust: " + builder.generateAppendRecommendations(req));
+
+            System.out.println("\tSecondary Cache: " + builder.getSecondaryCacheContents() + "\tPrimary Cache: " + builder.getPrimaryCacheContents());
+            System.out.println();
+        }
     }
 }

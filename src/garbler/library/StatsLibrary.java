@@ -53,20 +53,20 @@ public class StatsLibrary extends CharMap<CharStats> {
         wordLength = new OccurrenceList();
         this.setCaseSensitive(caseSensitive);
     }
-    
+
     // STATISTICS
     // - parseWord
     // - parseLine (2)
     // - getWordLengths
     // - getCorrelationsMatching
+    // - generateInfluenceMap (3)
     /**
-     * Method which parseLineLines an entire word and adds all the characters
-     * within to the internal statistics tracking structures, as well as general
-     * word statistics
+     * Method which parses an entire word and adds all the characters within to
+     * the internal statistics tracking structures, as well as general word
+     * statistics
      *
      * @param word
      */
-
     public void parseWord(String word) {
         // CASE SENSITIVITY
         if (!isCaseSensitive()) {
@@ -141,28 +141,48 @@ public class StatsLibrary extends CharMap<CharStats> {
     }
 
     /**
-     * Method to find the usage of specific characters following a certain
-     * sequence. Note that this does not guarantee that the character has been
-     * previously used following the sequence and is merely taken as a function
-     * of previous estimates. The only OccurrenceMaps returned are those which
-     * non-zero data at the index identified by the distance of each character
-     * from the end.
+     * Method to generate an Influence Map for a specified character sequence.
+     * That is, a map of all the characters that have been calculated as
+     * possible next characters with their influence levels
      *
-     * @param charSequence the string of characters before the sequence
-     * @throws IllegalArgumentException when an invalid mode is used
+     * @param charSequence the string of characters to interpret
+     * @throws IllegalArgumentException when offset is less than 0
      * @return A character-sorted map of OccurrenceLists demonstrating the
      * amount of influence each relevant character has on the word based on the
      * distance from the end as an integer. If a character has no influence it
      * is not included in the return value.
      */
     public OccurrenceMap generateInfluenceMap(String charSequence) {
+        return generateInfluenceMap(charSequence, 0);
+    }
+
+    /**
+     * Method to generate an Influence Map for a specified character sequence.
+     * That is, a map of all the characters that have been calculated as
+     * possible next characters with their influence levels
+     *
+     * @param charSequence the string of characters to interpret
+     * @param offset the offset with which to treat the word. That is, an offset
+     * greater than 0 will treat the word as if there were ghost characters in
+     * front of it
+     * @throws IllegalArgumentException when offset is less than 0
+     * @return A character-sorted map of OccurrenceLists demonstrating the
+     * amount of influence each relevant character has on the word based on the
+     * distance from the end as an integer. If a character has no influence it
+     * is not included in the return value.
+     */
+    public OccurrenceMap generateInfluenceMap(String charSequence, int offset) {
         int length = charSequence.length();
         int position;
+
+        if (offset < 0) {
+            throw new IllegalArgumentException("Negative offset passed");
+        }
 
         OccurrenceMap results = new OccurrenceMap(isCaseSensitive());
 
         // GO THROUGH EACH CHARACTER IN THE SEQQUENCES
-        for (int i = length - 1; i >= 0; i--) {
+        for (int i = length - 1 - offset; i >= 0; i--) {
             char charAt = charSequence.charAt(i);
             position = length - i - 1;
 
@@ -186,7 +206,7 @@ public class StatsLibrary extends CharMap<CharStats> {
                     existingList = new OccurrenceList();
                     results.put(key, existingList);
                 }
-                existingList.increment(position, value.get(position));
+                existingList.increment(position, value.getCount(position));
             }
         }
 
