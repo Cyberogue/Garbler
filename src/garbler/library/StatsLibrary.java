@@ -6,7 +6,7 @@
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * to use, copy, modify, mergeValues, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
@@ -53,6 +53,7 @@ public class StatsLibrary extends CharMap<CharStats> {
         wordLength = new OccurrenceList();
         this.setCaseSensitive(caseSensitive);
     }
+    
     // STATISTICS
     // - parseWord
     // - parseLine (2)
@@ -193,10 +194,10 @@ public class StatsLibrary extends CharMap<CharStats> {
     }
 
     // OVERWRITTEN METHODS
-    // - merge
+    // - mergeValues
     // - setCaseSensitive
     @Override
-    public CharStats merge(CharStats oldValue, CharStats newValue) {
+    public CharStats mergeValues(CharStats oldValue, CharStats newValue) {
         return oldValue.addAll(newValue);
     }
 

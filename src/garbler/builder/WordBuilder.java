@@ -6,7 +6,7 @@
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * to use, copy, modify, mergeValues, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
@@ -152,7 +152,7 @@ public class WordBuilder {
      */
     public CharMap<Float> getFromCache(String key) {
         // FIRST CHECK IF IT'S IN THE PRIMARY CACHE
-        CharMap<Float> primary = primaryEndingsCache.get(key);
+        CharMap primary = primaryEndingsCache.get(key);
         if (primary != null) {
             return primary;
         }
@@ -175,23 +175,37 @@ public class WordBuilder {
         return null;
     }
 
-    // BUILDING METHODS
+    // BUILDING METHODS 
+    // - reduceInfluenceMap    
     // - getCharacterRecommendations
+    /**
+     * Method which reduces an integer-based character influence map into a
+     * number of percentages totaling 1.0f. Note that this applies an aging
+     * algorithm to each entry which can be controlled through the
+     * setNewCharacterPreferenceFactor method
+     *
+     * @param map an OccurrenceMap of character influences and their distances
+     * @return a crunched CharMap of floating point percentages between 0.0 and
+     * 1.0
+     */
+    public CharMap<Float> reduceInfluenceMap(OccurrenceMap map) {
+        CharMap results = new BasicDecimalCharMap(map.isCaseSensitive());
+
+        // TODO write method body
+        return results;
+    }
+
+    /**
+     * Main method for requesting a new character to append to a string
+     *
+     * @param charSequence a sequence of characters to interpret
+     * @return a CharMap of percentages totaling 1.0f, each representing the
+     * total influence of each character
+     */
     public CharMap<Float> getCharacterRecommendations(String charSequence) {
-        CharMap<Float> results = new CharMap<Float>() {
-            @Override
-            public Float merge(Float oldValue, Float newValue) {
-                return oldValue + newValue;
-            }
-        };
-        int length = charSequence.length();
+        CharMap results = new BasicDecimalCharMap(statLib.isCaseSensitive());
 
-        // GET THE ENDING IF IT EXISTS
-        String ending;
-        if (length >= 2) {
-            ending = charSequence.substring(length - 2, length);
-        }
-
+        // TODO write method body
         return results;
     }
 }

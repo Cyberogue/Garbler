@@ -6,7 +6,7 @@
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * to use, copy, modify, mergeValues, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
@@ -103,9 +103,9 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
     /**
      * This method is used to compact the internal data structure by reassigning
      * uppercase keys to their lowercase variants where possible. Please note
-     * that when two data members already exist the merge() method is invoked on
-     * the two. Please use this to specify the procedure to use in case of a
-     * collision, otherwise the uppercase data member will simply be destroyed.
+ that when two data members already exist the mergeValues() method is invoked on
+ the two. Please use this to specify the procedure to use in case of a
+ collision, otherwise the uppercase data member will simply be destroyed.
      */
     @Override
     public final void compact() {
@@ -132,7 +132,7 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
                 super.put(cLow, vHigh);
             } else if (vLow != vHigh) {
                 // ASK THE USER WHAT TO DO
-                super.put(cLow, merge(vLow, vHigh));
+                super.put(cLow, mergeValues(vLow, vHigh));
             }
             // IF THE SAME OBJECT IS HELD IN BOTH, DO NOTHING
 
@@ -150,7 +150,7 @@ public abstract class CharMap<E> extends java.util.TreeMap<Character, E> impleme
                 super.put(entry.getKey(), entry.getValue());
             } else if (existing != entry.getValue()) {  // ONLY NEED TO MERGE IF THEY'RE NOT THE SAME THING
                 // UHOH, CONFLICT. ASK THE USER WHAT TO DO
-                merge(existing, entry.getValue());
+                mergeValues(existing, entry.getValue());
             }
         }
         return this;
