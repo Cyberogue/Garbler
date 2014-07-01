@@ -24,16 +24,16 @@
 package garbler.library;
 
 /**
- * Wrapper class for CharMaps of OccurrenceLists
+ * Wrapper class for CharMaps of CounterLists
  *
  * @author Rogue <Alice Q>
  */
-public class OccurrenceMap extends CharMap<OccurrenceList> {
-       // CONSTRUCTORS
+public class CounterCharMap extends CharMap<CounterList> {
+    //CONSTRUCTORS
     /**
      * Basic constructor for a case insensitive OccurrenceMap
      */
-    public OccurrenceMap() {
+    public CounterCharMap() {
         super();
     }
 
@@ -42,12 +42,12 @@ public class OccurrenceMap extends CharMap<OccurrenceList> {
      *
      * @param caseSensitive true if case should be ignored, false otherwise
      */
-    public OccurrenceMap(boolean caseSensitive) {
+    public CounterCharMap(boolean caseSensitive) {
         super(caseSensitive);
     }
 
     @Override
-    public OccurrenceList mergeValues(OccurrenceList oldValue, OccurrenceList newValue) {
+    public CounterList mergeValues(CounterList oldValue, CounterList newValue) {
         return oldValue.addAll(newValue);
     }
 }

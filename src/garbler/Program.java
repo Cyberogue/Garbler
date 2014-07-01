@@ -25,7 +25,6 @@ package garbler;
 
 import garbler.library.*;
 import garbler.builder.*;
-import java.util.Collections;
 
 /**
  * Main test class simply used for running individual test cases

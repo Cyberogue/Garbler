@@ -28,7 +28,7 @@ package garbler.library;
  *
  * @author Rogue <Alice Q>
  */
-public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAccess, java.lang.Comparable<OccurrenceList> {
+public class CounterList implements java.lang.Cloneable, java.util.RandomAccess, java.lang.Comparable<CounterList> {
 
     // AND THE INTERNAL MAP
     private int[] map;
@@ -40,7 +40,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     /**
      * Basic constructor
      */
-    public OccurrenceList() {
+    public CounterList() {
         this(1);
     }
 
@@ -49,7 +49,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      *
      * @param size the initial size of the structure
      */
-    public OccurrenceList(int size) {
+    public CounterList(int size) {
         map = new int[size];
     }
 
@@ -60,7 +60,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      * @throws IllegalArgumentException if any of the values inside list are
      * negative
      */
-    public OccurrenceList(int[] list) {
+    public CounterList(int[] list) {
         map = list.clone();
         for (int i : map) {
             if (i < 0) {
@@ -219,12 +219,12 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
 
     /**
      * Merges the values held internally with the values held inside another
-     * OccurrenceList by adding their values, resizing itself if needed
+ CounterList by adding their values, resizing itself if needed
      *
-     * @param list An OccurrenceList to addAll with
+     * @param list An CounterList to addAll with
      * @return a reference to itself
      */
-    public OccurrenceList addAll(OccurrenceList list) {
+    public CounterList addAll(CounterList list) {
         return addAll(list.values());
     }
 
@@ -235,7 +235,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
      * @param values An array of int values to addAll with
      * @return a reference to itself
      */
-    public OccurrenceList addAll(int[] values) {
+    public CounterList addAll(int[] values) {
         // INCREASE THE SIZE OF THE ARRAY IF NEEDED
         if (values.length > map.length) {
             int[] temp = new int[values.length];
@@ -255,7 +255,7 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     // - find (2)
     // - findIndexOf (2)
     /**
-     * Method to check if the OccurrenceList is empty
+     * Method to check if the CounterList is empty
      *
      * @return true if and only if every value is 0
      */
@@ -575,12 +575,12 @@ public class OccurrenceList implements java.lang.Cloneable, java.util.RandomAcce
     }
 
     @Override
-    public int compareTo(OccurrenceList list) {
+    public int compareTo(CounterList list) {
         return Integer.compare(this.map.length, list.map.length);
     }
 
     @Override
-    public OccurrenceList clone() throws CloneNotSupportedException {
-        return new OccurrenceList(map);
+    public CounterList clone() throws CloneNotSupportedException {
+        return new CounterList(map);
     }
 }

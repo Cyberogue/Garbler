@@ -286,20 +286,20 @@ public class WordBuilder {
      * through the setCloseCharacterPreferenceFactor method and same-character
      * repetition can be reduced through the setSameCharacterAdjustFactor method
      *
-     * @param map an OccurrenceMap of character influences and their distances
+     * @param map an CounterCharMap of character influences and their distances
      * @return a crunched CharMap of floating point percentages between 0.0 and
      * 1.0
      */
-    public CharMap<Float> reduceInfluenceMap(OccurrenceMap map) {
+    public CharMap<Float> reduceInfluenceMap(CounterCharMap map) {
         CharMap<Float> results = new BasicDecimalCharMap(map.isCaseSensitive());
 
         // FOR THE AGING ALGORITHM
         float oldCharacterPreference = 1.0f - closeCharacterPreference;
 
         // NOW RUN THE ALGORITHM
-        for (Entry<Character, OccurrenceList> entry : map.entrySet()) {
+        for (Entry<Character, CounterList> entry : map.entrySet()) {
             char key = entry.getKey();
-            OccurrenceList value = entry.getValue();
+            CounterList value = entry.getValue();
 
             // GET THE WEIGHTED SUM
             float weightedSum = 0.0f;

@@ -30,10 +30,14 @@ import java.util.Map.Entry;
  *
  * @author Rogue <Alice Q>
  */
-public class StatsLibrary extends CharMap<CharStats> {
+public class StatsLibrary {
 
+    // INTER-WORD CHARACTER STATS
+    CharMap<CharStats> charSequenceStats;
+
+    // 
     // THE LENGTH OF A WORD
-    private OccurrenceList wordLength;
+    private CounterList wordLength;
 
     /**
      * Default constructor for a case sensitive StatsLibrary
@@ -50,7 +54,13 @@ public class StatsLibrary extends CharMap<CharStats> {
      * accessing data, false otherwise
      */
     public StatsLibrary(boolean caseSensitive) {
-        wordLength = new OccurrenceList();
+        wordLength = new CounterList();
+        charSequenceStats = new CharMap<CharStats>() {
+            @Override
+            public CharStats mergeValues(CharStats oldValue, CharStats newValue) {
+                return oldValue.addAll(newValue);
+            }
+        };
         this.setCaseSensitive(caseSensitive);
     }
 
@@ -69,7 +79,7 @@ public class StatsLibrary extends CharMap<CharStats> {
      */
     public void parseWord(String word) {
         // CASE SENSITIVITY
-        if (!isCaseSensitive()) {
+        if (!charSequenceStats.isCaseSensitive()) {
             word = word.toLowerCase(java.util.Locale.ROOT);
         }
 
@@ -79,13 +89,13 @@ public class StatsLibrary extends CharMap<CharStats> {
         // CHARACTER STATISTICS - DO FOR EACH
         for (int i = 0; i < word.length(); i++) {
             char atIndex = word.charAt(i);
-            CharStats cStat = get(atIndex);
+            CharStats cStat = charSequenceStats.get(atIndex);
 
             // MAKE SURE THAT IT EXISTS
             if (cStat == null) {
                 cStat = new CharStats(atIndex);
-                cStat.setCaseSensitive(isCaseSensitive());
-                put(atIndex, cStat);
+                cStat.setCaseSensitive(charSequenceStats.isCaseSensitive());
+                charSequenceStats.put(atIndex, cStat);
             }
 
             // ADD CHARACTER STATISTICS
@@ -133,10 +143,10 @@ public class StatsLibrary extends CharMap<CharStats> {
      * Please note that this list has indeces offset by 1. That is, the value at
      * index 0 corresponds to word length 1.
      *
-     * @return An OccurrenceList displaying all the word lengths that have been
-     * found
+     * @return An CounterList displaying all the word lengths that have been
+ found
      */
-    public OccurrenceList getWordLengths() {
+    public CounterList getWordLengths() {
         return wordLength;
     }
 
@@ -147,12 +157,12 @@ public class StatsLibrary extends CharMap<CharStats> {
      *
      * @param charSequence the string of characters to interpret
      * @throws IllegalArgumentException when offset is less than 0
-     * @return A character-sorted map of OccurrenceLists demonstrating the
-     * amount of influence each relevant character has on the word based on the
-     * distance from the end as an integer. If a character has no influence it
-     * is not included in the return value.
+     * @return A character-sorted map of CounterLists demonstrating the
+ amount of influence each relevant character has on the word based on the
+ distance from the end as an integer. If a character has no influence it
+ is not included in the return value.
      */
-    public OccurrenceMap generateInfluenceMap(String charSequence) {
+    public CounterCharMap generateInfluenceMap(String charSequence) {
         return generateInfluenceMap(charSequence, 0);
     }
 
@@ -166,12 +176,12 @@ public class StatsLibrary extends CharMap<CharStats> {
      * greater than 0 will treat the word as if there were ghost characters in
      * front of it
      * @throws IllegalArgumentException when offset is less than 0
-     * @return A character-sorted map of OccurrenceLists demonstrating the
-     * amount of influence each relevant character has on the word based on the
-     * distance from the end as an integer. If a character has no influence it
-     * is not included in the return value.
+     * @return A character-sorted map of CounterLists demonstrating the
+ amount of influence each relevant character has on the word based on the
+ distance from the end as an integer. If a character has no influence it
+ is not included in the return value.
      */
-    public OccurrenceMap generateInfluenceMap(String charSequence, int offset) {
+    public CounterCharMap generateInfluenceMap(String charSequence, int offset) {
         int length = charSequence.length();
         int position;
 
@@ -179,7 +189,7 @@ public class StatsLibrary extends CharMap<CharStats> {
             throw new IllegalArgumentException("Negative offset passed");
         }
 
-        OccurrenceMap results = new OccurrenceMap(isCaseSensitive());
+        CounterCharMap results = new CounterCharMap(charSequenceStats.isCaseSensitive());
 
         // GO THROUGH EACH CHARACTER IN THE SEQQUENCES
         for (int i = length - 1 - offset; i >= 0; i--) {
@@ -187,23 +197,23 @@ public class StatsLibrary extends CharMap<CharStats> {
             position = length - i - 1;
 
             // FETCH THE ASSOCIATED CHARSTAT
-            CharStats stats = get(charAt);
+            CharStats stats = charSequenceStats.get(charAt);
             if (stats == null) {
                 continue;   // THERE ARE NO STATS SO IT DOESN'T MATTER
             }
 
             // GET ALL THE LISTS WITH IMPORTANT DATA
-            OccurrenceMap relevantLists = stats.getCorrelationsAtIndex(position);
+            CounterCharMap relevantLists = stats.getCorrelationsAtIndex(position);
 
             // AND ADD THAT DATA TO THE RESULTS
-            for (Entry<Character, OccurrenceList> entry : relevantLists.entrySet()) {
+            for (Entry<Character, CounterList> entry : relevantLists.entrySet()) {
                 char key = entry.getKey();
-                OccurrenceList value = entry.getValue();
+                CounterList value = entry.getValue();
 
                 // MAKE A NEW LIST IF NEEDED
-                OccurrenceList existingList = results.get(key);
+                CounterList existingList = results.get(key);
                 if (existingList == null) {
-                    existingList = new OccurrenceList();
+                    existingList = new CounterList();
                     results.put(key, existingList);
                 }
                 existingList.increment(position, value.getCount(position));
@@ -213,25 +223,32 @@ public class StatsLibrary extends CharMap<CharStats> {
         return results;
     }
 
-    // OVERWRITTEN METHODS
-    // - mergeValues
-    // - setCaseSensitive
-    @Override
-    public CharStats mergeValues(CharStats oldValue, CharStats newValue) {
-        return oldValue.addAll(newValue);
-    }
-
-    @Override
+    /**
+     * Method to set the case sensitivity of the internal character-sorted
+     * structures
+     *
+     * @param active false in order to ignore case sensitivity when accessing
+     * data, false otherwise
+     */
     public final void setCaseSensitive(boolean active) {
-        super.setCaseSensitive(active);
-        for (CharStats stats : values()) {
+        charSequenceStats.setCaseSensitive(active);
+        for (CharStats stats : charSequenceStats.values()) {
             stats.setCaseSensitive(active);
         }
     }
 
-    @Override
+    /**
+     * Clears the internal data structures
+     */
     public void clear() {
-        super.clear();
+        charSequenceStats.clear();
         wordLength.clear();
+    }
+
+    /**
+     * @return A Collection of all the characters being currently used
+     */
+    public java.util.Collection<Character> getAlphabet() {
+        return charSequenceStats.getAlphabet();
     }
 }

@@ -39,11 +39,11 @@ public class CharStats {
     private int occurrences;
 
     // THE DISTANCE FROM THE START AND END OF A WORD
-    private OccurrenceList startDistances;
-    private OccurrenceList endDistances;
+    private CounterList startDistances;
+    private CounterList endDistances;
 
     // MAP OF ALL THE TIMES THIS CHARACTER OCCURS IN THE SAME WORD AS OTHER CHARACTERS, AND THEIR DISTANCES. NOTE THAT THIS ONLY TRACKS DISTANCE FROM
-    private OccurrenceMap correlations;
+    private CounterCharMap correlations;
 
     // CONSTRUCTORS
     /**
@@ -64,9 +64,9 @@ public class CharStats {
 
         occurrences = 0;
 
-        startDistances = new OccurrenceList();
-        endDistances = new OccurrenceList();
-        correlations = new OccurrenceMap();
+        startDistances = new CounterList();
+        endDistances = new CounterList();
+        correlations = new CounterCharMap();
     }
 
     // GET-SETS
@@ -155,10 +155,10 @@ public class CharStats {
      * @throws ArrayIndexOutOfBoundsException When distanceTo is less than 1
      */
     public void addCharacterCorrelation(char c, int distanceTo) {
-        OccurrenceList list = correlations.get(c);
+        CounterList list = correlations.get(c);
 
         if (list == null) {
-            list = new OccurrenceList();
+            list = new CounterList();
             correlations.put(c, list);
         }
 
@@ -249,20 +249,20 @@ public class CharStats {
     /**
      * Distance from the start of a word
      *
-     * @return An OccurrenceList representation of the distances between this
-     * character and the start of each tracked word
+     * @return An CounterList representation of the distances between this
+ character and the start of each tracked word
      */
-    public OccurrenceList getDistancesFromStart() {
+    public CounterList getDistancesFromStart() {
         return startDistances;
     }
 
     /**
      * Distance from the end of a word
      *
-     * @return An OccurrenceList representation of the distances between this
-     * character and the end of each tracked word
+     * @return An CounterList representation of the distances between this
+ character and the end of each tracked word
      */
-    public OccurrenceList getDistancesFromEnd() {
+    public CounterList getDistancesFromEnd() {
         return endDistances;
     }
 
@@ -272,10 +272,10 @@ public class CharStats {
      * and the distance between the two
      *
      * @param c The character to test for
-     * @return An OccurrenceList representation of the number of tracked
-     * correlations, or null if none exists
+     * @return An CounterList representation of the number of tracked
+ correlations, or null if none exists
      */
-    public OccurrenceList getCorrelationWith(char c) {
+    public CounterList getCorrelationWith(char c) {
         return correlations.get(c);
     }
 
@@ -284,20 +284,20 @@ public class CharStats {
      * characters. This does not guarantee that there is an entry for every
      * single character, just the ones which have been tracked.
      *
-     * @return A Set of Entries each containing an OccurrenceList and a
-     * character representation
+     * @return A Set of Entries each containing an CounterList and a
+ character representation
      */
-    public java.util.Map<Character, OccurrenceList> getAllCorrelations() {
+    public java.util.Map<Character, CounterList> getAllCorrelations() {
         return correlations;
     }
 
-    public OccurrenceMap getCorrelationsAtIndex(int distance) {
+    public CounterCharMap getCorrelationsAtIndex(int distance) {
         // NEW CHARMAP, JUST ADD OCCURRENCE LISTS
-        OccurrenceMap valid = new OccurrenceMap(correlations.isCaseSensitive());
+        CounterCharMap valid = new CounterCharMap(correlations.isCaseSensitive());
 
         // PARSE THROUGH THEM ALL
-        for (Entry<Character, OccurrenceList> entry : correlations.entrySet()) {
-            OccurrenceList value = entry.getValue();
+        for (Entry<Character, CounterList> entry : correlations.entrySet()) {
+            CounterList value = entry.getValue();
             Character key = entry.getKey();
 
             // IF IT CONTAINS DATA, FETCH IT
@@ -321,7 +321,7 @@ public class CharStats {
      * @param c The character to clear
      */
     public void reset(char c) {
-        OccurrenceList list = correlations.get(c);
+        CounterList list = correlations.get(c);
 
         if (list != null) {
             list.clear();
@@ -346,10 +346,10 @@ public class CharStats {
      * @param c The new character to make a field for
      */
     public void prepare(char c) {
-        OccurrenceList list = correlations.get(c);
+        CounterList list = correlations.get(c);
 
         if (list == null) {
-            list = new OccurrenceList();
+            list = new CounterList();
             correlations.put(c, list);
         }
     }
