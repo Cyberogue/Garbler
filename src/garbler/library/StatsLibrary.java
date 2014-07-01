@@ -37,10 +37,10 @@ public class StatsLibrary {
     CharMap<CharStats> charSequenceStats;
 
     // FIRST-LETTER COUNTS
-    BasicIntegerCharMap primaryCharCounter;
+    BasicIntegerCharMap firstCharCounts;
 
     // THE LENGTH OF A WORD
-    private CounterList wordLength;
+    private OccurrenceList wordLength;
 
     /**
      * Default constructor for a case sensitive StatsLibrary
@@ -57,14 +57,14 @@ public class StatsLibrary {
      * accessing data, false otherwise
      */
     public StatsLibrary(boolean caseSensitive) {
-        wordLength = new CounterList();
+        wordLength = new OccurrenceList();
         charSequenceStats = new CharMap<CharStats>() {
             @Override
             public CharStats mergeValues(CharStats oldValue, CharStats newValue) {
                 return oldValue.addAll(newValue);
             }
         };
-        primaryCharCounter = new BasicIntegerCharMap(caseSensitive);
+        firstCharCounts = new BasicIntegerCharMap(caseSensitive);
         this.setCaseSensitive(caseSensitive);
     }
 
@@ -117,6 +117,7 @@ public class StatsLibrary {
         }
 
         for (String s : line.split(regex)) {
+            firstCharCounts.increment(s.charAt(0), 1);
             parseCharacterSequence(s);
         }
     }
@@ -152,11 +153,19 @@ public class StatsLibrary {
      * Please note that this list has indeces offset by 1. That is, the value at
      * index 0 corresponds to word length 1.
      *
-     * @return An CounterList displaying all the word lengths that have been
+     * @return An OccurrenceList displaying all the word lengths that have been
      * found
      */
-    public CounterList getWordLengths() {
+    public OccurrenceList getWordLengths() {
         return wordLength;
+    }
+
+    /**
+     * @return a map of the number of times each character has appeared as the
+     * first character
+     */
+    public CharMap<Integer> getPrimaryCharacterCounts() {
+        return firstCharCounts;
     }
 
     /**
@@ -166,12 +175,12 @@ public class StatsLibrary {
      *
      * @param charSequence the string of characters to interpret
      * @throws IllegalArgumentException when offset is less than 0
-     * @return A character-sorted map of CounterLists demonstrating the amount
-     * of influence each relevant character has on the word based on the
+     * @return A character-sorted map of OccurrenceLists demonstrating the
+     * amount of influence each relevant character has on the word based on the
      * distance from the end as an integer. If a character has no influence it
      * is not included in the return value.
      */
-    public CounterCharMap generateInfluenceMap(String charSequence) {
+    public OccurrenceCharMap generateInfluenceMap(String charSequence) {
         return generateInfluenceMap(charSequence, 0);
     }
 
@@ -185,12 +194,12 @@ public class StatsLibrary {
      * greater than 0 will treat the word as if there were ghost characters in
      * front of it
      * @throws IllegalArgumentException when offset is less than 0
-     * @return A character-sorted map of CounterLists demonstrating the amount
-     * of influence each relevant character has on the word based on the
+     * @return A character-sorted map of OccurrenceLists demonstrating the
+     * amount of influence each relevant character has on the word based on the
      * distance from the end as an integer. If a character has no influence it
      * is not included in the return value.
      */
-    public CounterCharMap generateInfluenceMap(String charSequence, int offset) {
+    public OccurrenceCharMap generateInfluenceMap(String charSequence, int offset) {
         int length = charSequence.length();
         int position;
 
@@ -198,7 +207,7 @@ public class StatsLibrary {
             throw new IllegalArgumentException("Negative offset passed");
         }
 
-        CounterCharMap results = new CounterCharMap(charSequenceStats.isCaseSensitive());
+        OccurrenceCharMap results = new OccurrenceCharMap(charSequenceStats.isCaseSensitive());
 
         // GO THROUGH EACH CHARACTER IN THE SEQQUENCES
         for (int i = length - 1 - offset; i >= 0; i--) {
@@ -212,17 +221,17 @@ public class StatsLibrary {
             }
 
             // GET ALL THE LISTS WITH IMPORTANT DATA
-            CounterCharMap relevantLists = stats.getCorrelationsAtIndex(position);
+            OccurrenceCharMap relevantLists = stats.getCorrelationsAtIndex(position);
 
             // AND ADD THAT DATA TO THE RESULTS
-            for (Entry<Character, CounterList> entry : relevantLists.entrySet()) {
+            for (Entry<Character, OccurrenceList> entry : relevantLists.entrySet()) {
                 char key = entry.getKey();
-                CounterList value = entry.getValue();
+                OccurrenceList value = entry.getValue();
 
                 // MAKE A NEW LIST IF NEEDED
-                CounterList existingList = results.get(key);
+                OccurrenceList existingList = results.get(key);
                 if (existingList == null) {
-                    existingList = new CounterList();
+                    existingList = new OccurrenceList();
                     results.put(key, existingList);
                 }
                 existingList.increment(position, value.getCount(position));

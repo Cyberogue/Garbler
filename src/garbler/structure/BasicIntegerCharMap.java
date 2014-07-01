@@ -130,9 +130,33 @@ public class BasicIntegerCharMap extends CharMap<Integer> {
     }
 
     // STATIC METHODS
-    // - trimMap   
+    // - rebalanceMap
+    // - trimMap
+    // - trimAndRebalanceMap
     /**
-     * Method to trim any low-valued items inside a character-keyed decimal map
+     * Method to equalize or re-balance an integer map so that the sum of the
+     * resulting values values equals 1.0f while still keeping in proportion to
+     * each other.
+     *
+     * @param map a map of integer values to equalize
+     * @return a new map of decimal point values representative of the result
+     */
+    public static CharMap<Float> getBalancedMap(CharMap<Integer> map) {
+        // TAKE THE TOTAL SUM
+        int sum = 0;
+        for (Integer i : map.values()) {
+            sum += i;
+        }
+        // DIVIDE BY SUM TO EQUALIZE
+        CharMap<Float> newMap = new BasicDecimalCharMap(map.isCaseSensitive());
+        for (Entry<Character, Integer> entry : map.entrySet()) {
+            newMap.put(entry.getKey(), entry.getValue().floatValue() / sum);
+        }
+        return newMap;
+    }
+
+    /**
+     * Method to trim any low-valued items inside a character-keyed integer map
      *
      * @param map the map to trim
      * @param threshold the lower threshold of acceptable values
@@ -141,8 +165,8 @@ public class BasicIntegerCharMap extends CharMap<Integer> {
      * to 0
      */
     public static int trimMap(CharMap<Integer> map, int threshold) {
-        if (threshold <= 0) {
-            throw new IllegalArgumentException("Threshold must be greater than 0");
+        if (threshold <= 0.0f) {
+            throw new IllegalArgumentException("Threshold must be between 0.0 and 1.0");
         }
         LinkedList<Character> trash = new LinkedList();
         // SEEK LOW-VALUED ENTRIES
@@ -157,5 +181,44 @@ public class BasicIntegerCharMap extends CharMap<Integer> {
             map.remove(c);
         }
         return removed;
+    }
+
+    /**
+     * Method which trims and re-equalizes an integer map by removing any values
+     * lower than the threshold and equalizing the results so their sum equals
+     * 1.0f
+     *
+     * @param map the map to trim and equalize
+     * @param threshold the lower threshold of acceptable values
+     * @return a new CharMap of floating point values representative of the
+     * result
+     * @throws IllegalArgumentException when the threshold is less than or equal
+     * to 0
+     */
+    public static CharMap<Float> getTrimmedAndRebalancedMap(CharMap<Integer> map, int threshold) {
+        if (threshold <= 0.0f) {
+            throw new IllegalArgumentException("Threshold must be greater than 0.0f");
+        }
+        LinkedList<Entry<Character, Integer>> trash = new LinkedList();
+        // SEEK LOW-VALUED ENTRIES AND GATHER THE SUM TO BEGIN WITH
+        float sum = 0;
+        for (Entry<Character, Integer> entry : map.entrySet()) {
+            if (entry.getValue() <= threshold) {
+                trash.push(entry);
+            } else {
+                sum += entry.getValue();
+            }
+        }
+        // EMPTY THE TRASH
+        int removed = trash.size();
+        for (Entry<Character, Integer> entry : trash) {
+            map.remove(entry.getKey());
+        }
+        // AND REBALANCE WHAT'S LEFT
+        CharMap<Float> newMap = new BasicDecimalCharMap(map.isCaseSensitive());
+        for (Entry<Character, Integer> entry : map.entrySet()) {
+            newMap.put(entry.getKey(), entry.getValue().floatValue() / sum);
+        }
+        return newMap;
     }
 }

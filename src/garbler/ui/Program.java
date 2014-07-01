@@ -26,6 +26,7 @@ package garbler.ui;
 import garbler.structure.BasicDecimalCharMap;
 import garbler.library.*;
 import garbler.builder.*;
+import garbler.structure.BasicIntegerCharMap;
 import java.util.Map.Entry;
 
 /**
@@ -39,30 +40,33 @@ public class Program {
     // THIS WILL BE TAKEN OUT OF THE FINAL VERSION AND IS JUST FOR TESTING TEST CASES
     public static void main(String[] args) {
         StatsLibrary lib = new StatsLibrary(false);
-        WordBuilder builder = new WordBuilder(lib);
+        StatsCruncher sc = new StatsCruncher(lib);
+        WordBuilder builder = new WordBuilder(sc);
 
         String testSeed = "orem ipsum dolor sit amet, te sit erat adipisci necessitatibus. Illud exerci animal ne per. Sea cibo scribentur eu. Ea ceteros insolens instructior cum. "
                 + "Vix sint dicit fabulas ut, ullum nostrud nec no. Eu debitis omittam per, quo labores offendit placerat at. Dicta solet dissentiet eu vel.";
         String[] testRequests = {"lica", "dict"};
 
+        lib.parseLineSimple(testSeed, ",.");
+        sc.recalculateMetrics();
+
         System.out.println("SEED: " + testSeed);
 
         for (String req : testRequests) {
-            builder.reset();
+            sc.reset();
 
             System.out.println("REQUEST: " + req);
-            lib.parseLineSimple(testSeed, ",.");
 
-            CharMap<Float> result = builder.generateAppendRecommendations(req);
+            CharMap<Float> result = sc.generateAppendRecommendations(req);
             System.out.println("\tRaw: " + result);
 
-            builder.setCharacterAgingFactor(0.9f);
-            result = builder.generateAppendRecommendations(req);
+            sc.setCharacterAgingFactor(0.9f);
+            result = sc.generateAppendRecommendations(req);
             BasicDecimalCharMap.trimAndRebalanceMap(result, 0.07f);
             System.out.println("\tMod 1: " + result);
 
-            builder.setSameCharacterAdjustFactor(0.5f);
-            result = builder.generateAppendRecommendations(req);
+            sc.setSameCharacterAdjustFactor(0.5f);
+            result = sc.generateAppendRecommendations(req);
             BasicDecimalCharMap.trimAndRebalanceMap(result, 0.07f);
             System.out.println("\tMod 2: " + result);
 
@@ -70,13 +74,12 @@ public class Program {
             for (Entry<Character, Float> entry : result.entrySet()) {
                 System.out.print(req + entry.getKey() + " (" + entry.getValue() + "), ");
             }
-
             System.out.println();
         }
-        System.out.println("\nOTHER");
-        System.out.println("\n\tSecondary Cache: " + builder.getSecondaryCacheContents() + "\tPrimary Cache: " + builder.getPrimaryCacheContents());
+        System.out.println("OTHER");
+        System.out.println("\tSecondary Cache: " + sc.getSecondaryCacheContents() + "\tPrimary Cache: " + sc.getPrimaryCacheContents());
         System.out.println("\tAlphabet: " + lib.getAlphabet());
         System.out.println("\tWord Lengths: " + lib.getWordLengths());
-        System.out.println(builder.getEOWFactor("erat"));
+        System.out.println("\tPrimary Counts:" + sc.getPrimaryCharacterDitribution());
     }
 }
