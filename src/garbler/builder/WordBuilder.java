@@ -23,6 +23,9 @@
  */
 package garbler.builder;
 
+import garbler.structure.CounterList;
+import garbler.structure.CounterCharMap;
+import garbler.structure.BasicDecimalCharMap;
 import garbler.library.*;
 
 import java.util.Map.Entry;
@@ -47,7 +50,7 @@ public class WordBuilder {
     private int primaryCacheSize;
 
     // USED FOR CHARACTER RECOMMENDATIONS
-    private float closeCharacterPreference;
+    private float characterAgingFactor;
     private float sameCharacterWeightAdjust;
 
     //CONSTRUCTORS
@@ -92,7 +95,7 @@ public class WordBuilder {
         primaryCacheSize = 32;
 
         // USED FOR CHARACTER RECOMMENDATIONS
-        closeCharacterPreference = 0.5f;
+        characterAgingFactor = 0.5f;
         sameCharacterWeightAdjust = 0.85f;
     }
 
@@ -231,11 +234,12 @@ public class WordBuilder {
     }
 
     // BUILDING METHODS 
-    // - setCloseCharacterPreferenceFactor
+    // - setCharacterAgingFactor
     // - setSameCharacterAdjustFactor
     // - reduceInfluenceMap    
     // - reduceInfluenceMapAndCache
     // - generateAppendRecommendations
+    // - getEODFactor
     /**
      * Method for setting the character aging factor when recommending new
      * characters. This factor changes how much additional influence characters
@@ -252,11 +256,11 @@ public class WordBuilder {
      * @throws IllegalArgumentException when a float is used not within the
      * legal range
      */
-    public void setCloseCharacterPreferenceFactor(float value) {
+    public void setCharacterAgingFactor(float value) {
         if (value < 0.0f || value > 1.0f) {
             throw new IllegalArgumentException("new value must be between 0 and 1");
         }
-        closeCharacterPreference = value;
+        characterAgingFactor = value;
     }
 
     /**
@@ -283,8 +287,8 @@ public class WordBuilder {
      * Method which reduces an integer-based character influence into a CharMap
      * of floats, each representing a weighted sum from the integers. Note that
      * this applies an aging algorithm to each entry which can be controlled
-     * through the setCloseCharacterPreferenceFactor method and same-character
-     * repetition can be reduced through the setSameCharacterAdjustFactor method
+     * through the setCharacterAgingFactor method and same-character repetition
+     * can be reduced through the setSameCharacterAdjustFactor method
      *
      * @param map an CounterCharMap of character influences and their distances
      * @return a crunched CharMap of floating point percentages between 0.0 and
@@ -294,7 +298,7 @@ public class WordBuilder {
         CharMap<Float> results = new BasicDecimalCharMap(map.isCaseSensitive());
 
         // FOR THE AGING ALGORITHM
-        float oldCharacterPreference = 1.0f - closeCharacterPreference;
+        float characterAgingInverse = 1.0f - characterAgingFactor;
 
         // NOW RUN THE ALGORITHM
         for (Entry<Character, CounterList> entry : map.entrySet()) {
@@ -305,8 +309,8 @@ public class WordBuilder {
             float weightedSum = 0.0f;
             for (int i = value.size() - 1; i >= 0; i--) {
                 // WE MUST GO IN REVERSE TO APPLY AGING TO OLD VALUES
-                weightedSum *= oldCharacterPreference;
-                weightedSum += closeCharacterPreference * value.getCount(i);
+                weightedSum *= characterAgingInverse;
+                weightedSum += characterAgingFactor * value.getCount(i);
             }
 
             // IF IT MATCHES THE KEY, REDUCE IT
@@ -387,5 +391,36 @@ public class WordBuilder {
         BasicDecimalCharMap.rebalanceMap(results);
 
         return results;
+    }
+
+    /**
+     * Retrieves the End-Of-Word factor being a number in the range 0.0-1.0f
+     * showing the calculated odds of the character sequence being the end of a
+     * word.
+     *
+     * This is done by taking each character in the sequence and retrieving the
+     * PMF of it being the character at that position then applying an aging
+     * algorithm to the entire set, reducing it to a single number. The amount
+     * of aging can be modified through the setCharacterAgingFactor method
+     *
+     * @param charSequence
+     * @return a float value representing a factor between 0.0-1.0 of this
+     * character sequence being a word ending
+     */
+    public float getEOWFactor(String charSequence) {
+        // INITIALIZATION
+        int length = charSequence.length();
+        float result = 0.0f;
+        float characterAgingInverse = 1.0f - characterAgingFactor;
+
+        for (int i = 0; i < length; i++) {
+            // FOR EACH CHARACTER BEGINNING AT THE START, GET THE PMF AT SAID INDEX AND AGE IT
+            CharStats stat = statLib.getCharacterStats(charSequence.charAt(i));
+            result *= characterAgingInverse;
+            result += characterAgingFactor * stat.getDistancesFromEnd().getProbabilityMass(length - i - 1);
+        }
+
+        // RETURN THE RESULT
+        return result;
     }
 }

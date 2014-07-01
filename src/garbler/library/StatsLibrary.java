@@ -23,6 +23,7 @@
  */
 package garbler.library;
 
+import garbler.structure.*;
 import java.util.Map.Entry;
 
 /**
@@ -35,7 +36,9 @@ public class StatsLibrary {
     // INTER-WORD CHARACTER STATS
     CharMap<CharStats> charSequenceStats;
 
-    // 
+    // FIRST-LETTER COUNTS
+    BasicIntegerCharMap primaryCharCounter;
+
     // THE LENGTH OF A WORD
     private CounterList wordLength;
 
@@ -61,12 +64,13 @@ public class StatsLibrary {
                 return oldValue.addAll(newValue);
             }
         };
+        primaryCharCounter = new BasicIntegerCharMap(caseSensitive);
         this.setCaseSensitive(caseSensitive);
     }
 
-    // STATISTICS
-    // - parseWord
-    // - parseLine (2)
+    // STATISTICS PARSING
+    // - parseCharacterSequence
+    // - parseLineSimple (2)
     // - getWordLengths
     // - getCorrelationsMatching
     // - generateInfluenceMap (3)
@@ -75,20 +79,16 @@ public class StatsLibrary {
      * the internal statistics tracking structures, as well as general word
      * statistics
      *
-     * @param word
+     * @param charSequence the sequence of characters to parse and track. In
+     * essence, a single word (but not always).
      */
-    public void parseWord(String word) {
-        // CASE SENSITIVITY
-        if (!charSequenceStats.isCaseSensitive()) {
-            word = word.toLowerCase(java.util.Locale.ROOT);
-        }
-
+    public void parseCharacterSequence(String charSequence) {
         // WORD STATISTICS
-        wordLength.increment(word.length() - 1);
+        wordLength.increment(charSequence.length() - 1);
 
         // CHARACTER STATISTICS - DO FOR EACH
-        for (int i = 0; i < word.length(); i++) {
-            char atIndex = word.charAt(i);
+        for (int i = 0; i < charSequence.length(); i++) {
+            char atIndex = charSequence.charAt(i);
             CharStats cStat = charSequenceStats.get(atIndex);
 
             // MAKE SURE THAT IT EXISTS
@@ -99,7 +99,7 @@ public class StatsLibrary {
             }
 
             // ADD CHARACTER STATISTICS
-            cStat.addWord(word, i);
+            cStat.addWord(charSequence, i);
         }
     }
 
@@ -111,9 +111,13 @@ public class StatsLibrary {
      * @param regex The regular expressions string specifying where to break
      * apart the line of text
      */
-    public void parseLineRegex(String line, String regex) {
+    public void parseLine(String line, String regex) {
+        if (!charSequenceStats.isCaseSensitive()) {
+            line = line.toLowerCase(java.util.Locale.ROOT);
+        }
+
         for (String s : line.split(regex)) {
-            parseWord(s);
+            parseCharacterSequence(s);
         }
     }
 
@@ -124,8 +128,8 @@ public class StatsLibrary {
      * @param line a line of text
      * @param delim a string of delimiters to use in addition to whitespace
      */
-    public void parseLine(String line, String delim) {
-        parseLineRegex(line, "[" + delim.replace("]", "\\]").replace("[", "\\[").replace("%", "\\%") + "\\s]+");
+    public void parseLineSimple(String line, String delim) {
+        parseLine(line, "[" + delim + "\\s]+");
     }
 
     /**
@@ -134,17 +138,22 @@ public class StatsLibrary {
      *
      * @param line a line of text
      */
-    public void parseLine(String line) {
-        parseLineRegex(line, "\\s+");
+    public void parseLineSimple(String line) {
+        parseLine(line, "\\s+");
     }
 
+    // STATISTICS DATA RETRIEVAL AND GENERATION
+    // - getWordLengths
+    // - generateInfluenceMap (2)
+    // - getCharacterStats
+    // - getAlphabet
     /**
      * Method for retrieval of data regarding all the word lengths encountered.
      * Please note that this list has indeces offset by 1. That is, the value at
      * index 0 corresponds to word length 1.
      *
      * @return An CounterList displaying all the word lengths that have been
- found
+     * found
      */
     public CounterList getWordLengths() {
         return wordLength;
@@ -157,10 +166,10 @@ public class StatsLibrary {
      *
      * @param charSequence the string of characters to interpret
      * @throws IllegalArgumentException when offset is less than 0
-     * @return A character-sorted map of CounterLists demonstrating the
- amount of influence each relevant character has on the word based on the
- distance from the end as an integer. If a character has no influence it
- is not included in the return value.
+     * @return A character-sorted map of CounterLists demonstrating the amount
+     * of influence each relevant character has on the word based on the
+     * distance from the end as an integer. If a character has no influence it
+     * is not included in the return value.
      */
     public CounterCharMap generateInfluenceMap(String charSequence) {
         return generateInfluenceMap(charSequence, 0);
@@ -176,10 +185,10 @@ public class StatsLibrary {
      * greater than 0 will treat the word as if there were ghost characters in
      * front of it
      * @throws IllegalArgumentException when offset is less than 0
-     * @return A character-sorted map of CounterLists demonstrating the
- amount of influence each relevant character has on the word based on the
- distance from the end as an integer. If a character has no influence it
- is not included in the return value.
+     * @return A character-sorted map of CounterLists demonstrating the amount
+     * of influence each relevant character has on the word based on the
+     * distance from the end as an integer. If a character has no influence it
+     * is not included in the return value.
      */
     public CounterCharMap generateInfluenceMap(String charSequence, int offset) {
         int length = charSequence.length();
@@ -224,6 +233,27 @@ public class StatsLibrary {
     }
 
     /**
+     * Retrieves a set of statistics for a single character in a character
+     * sequence
+     *
+     * @param character the character to retrieve for
+     * @return a CharStats corresponding to the provided character
+     */
+    public CharStats getCharacterStats(Character character) {
+        return charSequenceStats.get(character);
+    }
+
+    /**
+     * @return A Collection of all the characters being currently used
+     */
+    public java.util.Collection<Character> getAlphabet() {
+        return charSequenceStats.getAlphabet();
+    }
+
+    // MODIFIERS
+    // - setCaseSensitive
+    // = clear
+    /**
      * Method to set the case sensitivity of the internal character-sorted
      * structures
      *
@@ -243,12 +273,5 @@ public class StatsLibrary {
     public void clear() {
         charSequenceStats.clear();
         wordLength.clear();
-    }
-
-    /**
-     * @return A Collection of all the characters being currently used
-     */
-    public java.util.Collection<Character> getAlphabet() {
-        return charSequenceStats.getAlphabet();
     }
 }

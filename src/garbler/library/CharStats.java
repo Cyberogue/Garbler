@@ -23,6 +23,8 @@
  */
 package garbler.library;
 
+import garbler.structure.CounterList;
+import garbler.structure.CounterCharMap;
 import java.util.Map.Entry;
 
 /**
@@ -190,7 +192,7 @@ public class CharStats {
 
         // IT PASSED THE TEST SO ADD EVERYTHING
         startDistances.increment(fromIndex);
-        endDistances.increment(word.length() - fromIndex);
+        endDistances.increment(word.length() - fromIndex - 1);
         occurrences++;
 
         // ADD EVERY CHARACTER AFTER THIS ONE
@@ -221,7 +223,7 @@ public class CharStats {
 
         // IT PASSED THE TEST SO ADD EVERYTHING
         startDistances.increment(fromIndex);
-        endDistances.increment(word.length() - fromIndex);
+        endDistances.increment(word.length() - fromIndex - 1);
         occurrences++;
 
         // ADD EVERY CHARACTER AFTER THIS ONE
@@ -250,7 +252,7 @@ public class CharStats {
      * Distance from the start of a word
      *
      * @return An CounterList representation of the distances between this
- character and the start of each tracked word
+     * character and the start of each tracked word
      */
     public CounterList getDistancesFromStart() {
         return startDistances;
@@ -260,7 +262,7 @@ public class CharStats {
      * Distance from the end of a word
      *
      * @return An CounterList representation of the distances between this
- character and the end of each tracked word
+     * character and the end of each tracked word
      */
     public CounterList getDistancesFromEnd() {
         return endDistances;
@@ -273,7 +275,7 @@ public class CharStats {
      *
      * @param c The character to test for
      * @return An CounterList representation of the number of tracked
- correlations, or null if none exists
+     * correlations, or null if none exists
      */
     public CounterList getCorrelationWith(char c) {
         return correlations.get(c);
@@ -284,8 +286,8 @@ public class CharStats {
      * characters. This does not guarantee that there is an entry for every
      * single character, just the ones which have been tracked.
      *
-     * @return A Set of Entries each containing an CounterList and a
- character representation
+     * @return A Set of Entries each containing an CounterList and a character
+     * representation
      */
     public java.util.Map<Character, CounterList> getAllCorrelations() {
         return correlations;

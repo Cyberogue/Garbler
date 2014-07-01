@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package garbler.library;
+package garbler.structure;
 
 /**
  * Interface for creating container objects that allow for data compaction with

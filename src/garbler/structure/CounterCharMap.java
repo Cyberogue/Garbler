@@ -21,7 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package garbler.library;
+package garbler.structure;
+
+import garbler.library.CharMap;
 
 /**
  * Wrapper class for CharMaps of CounterLists

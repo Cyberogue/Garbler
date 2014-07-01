@@ -21,7 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package garbler.library;
+package garbler.structure;
+
+import garbler.library.SearchPhrase;
 
 /**
  * List which tracks the number of occurrences of an event at different times
@@ -569,7 +571,7 @@ public class CounterList implements java.lang.Cloneable, java.util.RandomAccess,
         int index = 0;
         while (++index < map.length) {
             s += "," + map[index];
-        }
+        } 
 
         return s += ">";
     }

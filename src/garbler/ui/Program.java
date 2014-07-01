@@ -21,10 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package garbler;
+package garbler.ui;
 
+import garbler.structure.BasicDecimalCharMap;
 import garbler.library.*;
 import garbler.builder.*;
+import java.util.Map.Entry;
 
 /**
  * Main test class simply used for running individual test cases
@@ -41,7 +43,7 @@ public class Program {
 
         String testSeed = "orem ipsum dolor sit amet, te sit erat adipisci necessitatibus. Illud exerci animal ne per. Sea cibo scribentur eu. Ea ceteros insolens instructior cum. "
                 + "Vix sint dicit fabulas ut, ullum nostrud nec no. Eu debitis omittam per, quo labores offendit placerat at. Dicta solet dissentiet eu vel.";
-        String[] testRequests = {"val", "abc", "mal", "malosu", "dubi", "lica", "labi"};
+        String[] testRequests = {"lica", "dict"};
 
         System.out.println("SEED: " + testSeed);
 
@@ -49,12 +51,12 @@ public class Program {
             builder.reset();
 
             System.out.println("REQUEST: " + req);
-            lib.parseLine(testSeed, ",.");
+            lib.parseLineSimple(testSeed, ",.");
 
             CharMap<Float> result = builder.generateAppendRecommendations(req);
             System.out.println("\tRaw: " + result);
 
-            builder.setCloseCharacterPreferenceFactor(0.9f);
+            builder.setCharacterAgingFactor(0.9f);
             result = builder.generateAppendRecommendations(req);
             BasicDecimalCharMap.trimAndRebalanceMap(result, 0.07f);
             System.out.println("\tMod 1: " + result);
@@ -65,12 +67,16 @@ public class Program {
             System.out.println("\tMod 2: " + result);
 
             System.out.print("\tSuggestions: ");
-            for (char c : result.keySet()) {
-                System.out.print(req + c + ", ");
+            for (Entry<Character, Float> entry : result.entrySet()) {
+                System.out.print(req + entry.getKey() + " (" + entry.getValue() + "), ");
             }
 
-            System.out.println("\n\tSecondary Cache: " + builder.getSecondaryCacheContents() + "\tPrimary Cache: " + builder.getPrimaryCacheContents());
             System.out.println();
         }
+        System.out.println("\nOTHER");
+        System.out.println("\n\tSecondary Cache: " + builder.getSecondaryCacheContents() + "\tPrimary Cache: " + builder.getPrimaryCacheContents());
+        System.out.println("\tAlphabet: " + lib.getAlphabet());
+        System.out.println("\tWord Lengths: " + lib.getWordLengths());
+        System.out.println(builder.getEOWFactor("erat"));
     }
 }

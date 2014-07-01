@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package garbler.builder;
+package garbler.structure;
 
 import garbler.library.CharMap;
 import java.util.LinkedList;
@@ -45,6 +45,17 @@ public class BasicDecimalCharMap extends CharMap<Float> {
         super(caseSensitivity);
     }
 
+    @Override
+    public Float mergeValues(Float oldValue, Float newValue) {
+        return oldValue + newValue;
+    }
+
+    // ADDITIONAL METHODS
+    // - getSum
+    // - toIntegerMap
+    // - increment
+    // - decrement
+    // - reset
     /**
      * Method to get the sum of all the internally held values
      *
@@ -58,9 +69,64 @@ public class BasicDecimalCharMap extends CharMap<Float> {
         return sum;
     }
 
-    @Override
-    public Float mergeValues(Float oldValue, Float newValue) {
-        return oldValue + newValue;
+    /**
+     * Conversion method from float to integer
+     *
+     * @return a new CharMap of equivalent integers with the same key set as
+     * this map
+     */
+    public BasicIntegerCharMap toIntegerMap() {
+        BasicIntegerCharMap map = new BasicIntegerCharMap(super.isCaseSensitive());
+        for (Entry<Character, Float> entry : entrySet()) {
+            map.put(entry.getKey(), entry.getValue().intValue());
+        }
+        return map;
+    }
+
+    /**
+     * Increments the count at a certain key, initializing it if it doesn't
+     * exist
+     *
+     * @param key the character key to get
+     * @param quantity the amount to increment by
+     * @return the new value held at the provided key
+     */
+    public float increment(Character key, Float quantity) {
+        Float currentValue = get(key);
+        if (currentValue == null) {
+            currentValue = 0.0f;
+        }
+        put(key, quantity + currentValue);
+        return quantity + currentValue;
+    }
+
+    /**
+     * Decrements the count at a certain key, initializing it if it doesn't
+     * exist
+     *
+     * @param key the character key to get
+     * @param quantity the amount to increment by
+     * @return the new value held at the provided key
+     */
+    public float decrement(Character key, Float quantity) {
+        Float currentValue = get(key);
+        if (currentValue == null) {
+            currentValue = 0.0f;
+        }
+        put(key, quantity - currentValue);
+        return quantity - currentValue;
+    }
+
+    /**
+     * Resets the value at a given key to 0 without deleting the key. However,
+     * this will not create a new key if one doesn't exist.
+     *
+     * @param key the character key to get
+     */
+    public void reset(Character key) {
+        if (containsKey(key)) {
+            put(key, 0.0f);
+        }
     }
 
     // STATIC METHODS
@@ -126,7 +192,7 @@ public class BasicDecimalCharMap extends CharMap<Float> {
      */
     public static int trimAndRebalanceMap(CharMap<Float> map, float threshold) {
         if (threshold <= 0.0f) {
-            throw new IllegalArgumentException("Threshold must be between 0.0 and 1.0");
+            throw new IllegalArgumentException("Threshold must be greater than 0.0f");
         }
         LinkedList<Entry<Character, Float>> trash = new LinkedList();
         // SEEK LOW-VALUED ENTRIES AND GATHER THE SUM TO BEGIN WITH

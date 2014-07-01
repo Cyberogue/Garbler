@@ -23,6 +23,7 @@
  */
 package garbler.library;
 
+import garbler.structure.Compactable;
 import java.util.Map.Entry;
 
 /**
