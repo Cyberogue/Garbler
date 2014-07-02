@@ -42,8 +42,10 @@ public class Program {
         StatsLibrary lib = new StatsLibrary(false);
         StatsCruncher sc = new StatsCruncher(lib);
         WordBuilder builder = new WordBuilder(sc);
-
-        /*
+        
+        sc.setCharacterAgingFactor(0.5f);
+        sc.setSameCharacterAdjustFactor(0.8f);
+               
          // LATIN/LOREM IPSUM
          String testSeed = "Lorem ipsum dolor sit amet, quando exerci at mel. Ea duo wisi iusto, ad scribentur comprehensam nec, vel ea everti detracto offendit. Ius agam ancillae accusata in, duo congue iriure ex, ne debitis mentitum usu. Ut movet sensibus aliquando sed. Cum ignota facilis cu, case natum iisque eu quo, timeam dolores vulputate mei ex. Nihil soluta commodo nec ut.\n"
          + "Erat consectetuer comprehensam vim ad, et mei dolore aliquid officiis. Clita eleifend at pri, sale detraxit ea quo, qui dolorum fabellas ad. Dico nonumes deseruisse mei cu. Ludus inimicus temporibus per ne, pro meis dolores oporteat et.\n"
@@ -55,16 +57,16 @@ public class Program {
          + "Te saepe quaestio per. Ea ullum alterum percipitur duo, tale augue necessitatibus ius ex, mea latine bonorum antiopam at. Viris choro ceteros pri ex, et vis dico tacimates iudicabit. Usu an nonumy impedit, mei at eros fabellas. Quo te detraxit periculis reprehendunt.\n"
          + "Cu sea solet eleifend conceptam, dicit melius delectus qui at. Cu dicta nostro antiopam nam, id eum nisl eros causae. Et ius graeci omnesque, ea est commune ullamcorper. Vim porro etiam debitis id, usu apeirian atomorum tincidunt cu, qui saepe tempor an.\n"
          + "Nec ea tollit temporibus consequuntur, vim partem aperiri theophrastus id. No est persius scribentur mediocritatem, primis saperet efficiantur quo id. Ne vel malis dolor habemus. Vel quaerendum instructior ne, pro nominavi periculis dignissim ne, ut voluptatum efficiendi liberavisse cum. Suas molestiae eam te, at laudem meliore antiopam cum.";
-         */
+         
         // SPANISH
-        String testSeed = "Cocineros medievales fueron restringidos a menudo en formas fueron capaces de utilizar, tener acceso restringido a hornos "
+       /* String testSeed = "Cocineros medievales fueron restringidos a menudo en formas fueron capaces de utilizar, tener acceso restringido a hornos "
                 + "debido a los costes de construcción y necesidad de abundantes suministros de combustible de cocina. Pies podrían ser fácilmente "
                 + "cocinadas sobre un fuego abierto, al asociarse con un panadero les permitió cocinar el relleno dentro de su propia carcasa definida "
                 + "localmente. Las primeras recetas de circular como refieren a coffyns (la palabra realmente usada para una canasta o caja), con rectas"
                 + " lados cerrados y un top; abrir mejores pies fueron denominados trampas. Esto también puede ser la razón por qué principios recetas "
                 + "centran en el relleno sobre el caso que lo rodea, con la desarrollo de asociación hacia el uso de casos de pastel de barro"
                 + "reutilizables que redujo el uso de harina de caro.";
-
+*/
         lib.parseLineSimple(testSeed, ",.");
         sc.recalculateMetrics();
 
