@@ -152,66 +152,39 @@ public class BasicDecimalCharMap extends CharMap<Float> {
     }
 
     /**
-     * Method to trim any low-valued items inside a character-keyed decimal map
+     * Method to trim any low-valued items inside a character-keyed decimal map.
+     * A low-valued item is one which is below the threshold percentage of the
+     * total.
      *
      * @param map the map to trim
      * @param threshold the lower threshold of acceptable values
      * @return the number of deleted items
-     * @throws IllegalArgumentException when the threshold is less than or equal
-     * to 0
+     * @throws IllegalArgumentException when the threshold is not between 0.0
+     * and 1.0
      */
     public static int trimMap(CharMap<Float> map, float threshold) {
-        if (threshold <= 0.0f) {
+        if (threshold <= 0.0f || threshold >= 1.0f) {
             throw new IllegalArgumentException("Threshold must be between 0.0 and 1.0");
         }
         LinkedList<Character> trash = new LinkedList();
+        // FIND THE SUM
+        float sum = 0.0f;
+        for (float f : map.values()) {
+            sum += f;
+        }
+
         // SEEK LOW-VALUED ENTRIES
+        float thresholdAdjusted = threshold * sum; 
         for (Entry<Character, Float> entry : map.entrySet()) {
-            if (entry.getValue() <= threshold) {
+            if (entry.getValue() <= thresholdAdjusted) {
                 trash.push(entry.getKey());
             }
         }
+        
         // EMPTY THE TRASH
         int removed = trash.size();
         for (Character c : trash) {
             map.remove(c);
-        }
-        return removed;
-    }
-
-    /**
-     * Method which trims and re-equalizes a decimal map by removing any values
-     * lower than the threshold and equalizing the results so their sum equals
-     * 1.0f
-     *
-     * @param map the map to trim and equalize
-     * @param threshold the lower threshold of acceptable values
-     * @return the number of deleted items
-     * @throws IllegalArgumentException when the threshold is less than or equal
-     * to 0
-     */
-    public static int trimAndRebalanceMap(CharMap<Float> map, float threshold) {
-        if (threshold <= 0.0f) {
-            throw new IllegalArgumentException("Threshold must be greater than 0.0f");
-        }
-        LinkedList<Entry<Character, Float>> trash = new LinkedList();
-        // SEEK LOW-VALUED ENTRIES AND GATHER THE SUM TO BEGIN WITH
-        float sum = 0;
-        for (Entry<Character, Float> entry : map.entrySet()) {
-            if (entry.getValue() <= threshold) {
-                trash.push(entry);
-            } else {
-                sum += entry.getValue();
-            }
-        }
-        // EMPTY THE TRASH
-        int removed = trash.size();
-        for (Entry<Character, Float> entry : trash) {
-            map.remove(entry.getKey());
-        }
-        // AND REBALANCE WHAT'S LEFT
-        for (Entry<Character, Float> entry : map.entrySet()) {
-            map.put(entry.getKey(), entry.getValue() / sum);
         }
         return removed;
     }

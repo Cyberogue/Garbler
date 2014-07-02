@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import garbler.library.CharMap;
 import garbler.library.StatsLibrary;
+import garbler.structure.BasicDecimalCharMap;
 
 /**
  * Class which builds words using random chance and the statistics provided from
@@ -39,13 +40,13 @@ public class WordBuilder {
 
     // CLASS WHICH HANDLES ALL THE FANCY NUMBER CRUNCHING
     private StatsCruncher libData;
-    
+
     // STATS LIBRARY INSIDE THE CRUNCHER CLASS
     private StatsLibrary statLib;
 
     // RNG
     private Random random;
-   
+
     /**
      * Basic constructor
      *
@@ -78,8 +79,31 @@ public class WordBuilder {
      * @param maxLength the maximum length of a word
      * @return a generated word matching the data provided by the cruncher
      */
-    public String generateWord(int maxLength) {
+    public String generateWord(int maxLength, float threshold) {
         String s = "";
+
+        s += pickFromDistribution(libData.getPrimaryCharacterDitribution());
+        for (int i = 1; i < maxLength; i++) {
+            // USE THE LAST UP-TO-6 CHARACTERS AS A SEED
+            String seed = (s.length() < 6 ? s : s.substring(s.length() - 6, s.length()));
+
+            // CHECK THE ODDS OF IT BEING AN ENDING
+            if (random.nextFloat() < libData.getEOWFactor(seed)){
+                return s;
+            }
+            
+            // GER RECOMMENDATIONS FOR AND GENERATE THE NEXT CHARACTER
+            CharMap<Float> recommendations = libData.generateAppendRecommendations(seed);
+            if (threshold < 1.0f) {
+                BasicDecimalCharMap.trimMap(recommendations, threshold);
+            }
+            BasicDecimalCharMap.rebalanceMap(recommendations);
+            Character nextChar = pickFromDistribution(recommendations);
+
+            // ADD IT TO THE WORD
+            s += nextChar;
+        }
+
         return s;
     }
 

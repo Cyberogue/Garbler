@@ -50,32 +50,15 @@ public class Program {
         lib.parseLineSimple(testSeed, ",.");
         sc.recalculateMetrics();
 
-        System.out.println("SEED: " + testSeed);
-
-        for (String req : testRequests) {
-            sc.reset();
-
-            System.out.println("REQUEST: " + req);
-
-            CharMap<Float> result = sc.generateAppendRecommendations(req);
-            System.out.println("\tRaw: " + result);
-
-            sc.setCharacterAgingFactor(0.9f);
-            result = sc.generateAppendRecommendations(req);
-            BasicDecimalCharMap.trimAndRebalanceMap(result, 0.07f);
-            System.out.println("\tMod 1: " + result);
-
-            sc.setSameCharacterAdjustFactor(0.5f);
-            result = sc.generateAppendRecommendations(req);
-            BasicDecimalCharMap.trimAndRebalanceMap(result, 0.07f);
-            System.out.println("\tMod 2: " + result);
-
-            System.out.print("\tSuggestions: ");
-            for (Entry<Character, Float> entry : result.entrySet()) {
-                System.out.print(req + entry.getKey() + " (" + entry.getValue() + "), ");
+        System.out.println("FREE GENERATION");
+        for (int y = 0; y < 20; y++) {
+            for (int x = 0; x < 10; x++) {
+                System.out.print(builder.generateWord(10, 0.1f) + " ");
             }
             System.out.println();
         }
+        System.out.println();
+
         System.out.println("OTHER");
         System.out.println("\tSecondary Cache: " + sc.getSecondaryCacheContents() + "\tPrimary Cache: " + sc.getPrimaryCacheContents());
         System.out.println("\tAlphabet: " + lib.getAlphabet());

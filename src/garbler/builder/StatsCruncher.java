@@ -425,9 +425,6 @@ public class StatsCruncher {
             results.put(lastChar, repeatEntry * sameCharacterWeightAdjust);
         }
 
-        // THEN REBALANCE THME
-        BasicDecimalCharMap.rebalanceMap(results);
-
         return results;
     }
 
